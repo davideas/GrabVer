@@ -3,10 +3,10 @@ Inspired from <a href='https://andreborud.com/android-studio-automatic-increment
 Customized into library with Suffix and Auto-Reset features. Works with any project type.
 
 ### Concept
-**Major**: User defined breaking changes<br/>
-**Minor**: User defined new features, but backwards compatible<br/>
+_Major_: User defined breaking changes<br/>
+_Minor_: User defined new features, but backwards compatible<br/>
 _Patch_: Auto generated backwards compatible bug fixes only<br/>
-**Suffix**: User defined value for versionName
+_Suffix_: User defined value for versionName
 
 **Build** - increases at each build<br/>
 **Code** - increases at each release<br/>
@@ -14,15 +14,18 @@ _Patch_: Auto generated backwards compatible bug fixes only<br/>
 
  
 ## Installation
+```
+// 1. Run "gradlew install" (Not published yet! So use local repository)
+// 2. Configure as following
+```
 ``` groovy
 buildscript {
-	repositories {
-	    // Not published yet! So use local repository
-		mavenLocal()
+    repositories {
+        mavenLocal()
 	}
-	dependencies {
-		classpath 'eu.davidea:grabver:1.0.0'
-	}
+    dependencies {
+        classpath 'eu.davidea:grabver:1.0.0'
+    }
 }
 ```
 

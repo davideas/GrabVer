@@ -24,7 +24,7 @@ class GrabVerTest {
     @Test
     void testAutoIncrement_Release_NoVersionChange() throws Exception {
         List tasks = new ArrayList<>()
-        tasks.add("release")
+        tasks.add("test_release")
         project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
@@ -40,7 +40,7 @@ class GrabVerTest {
     @Test
     void testAutoIncrement_Release_VersionChange() throws Exception {
         List tasks = new ArrayList<>()
-        tasks.add("release")
+        tasks.add("test_release")
         project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
@@ -114,7 +114,7 @@ class GrabVerTest {
         versionProps.load(fis)
         fis.close()
 
-        println("====== Auto-generating content properties for test")
+        println("===== Auto-generating content properties for test")
         versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(major))
         versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(minor))
         versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(patch))
@@ -128,7 +128,7 @@ class GrabVerTest {
     private static File getFile(String fileName) {
         File versionPropsFile = new File(fileName)
         if (!versionPropsFile.canRead()) {
-            println("====== Could not find properties file '" + fileName + "', generating new one!")
+            println("===== Could not find properties file '" + fileName + "', generating new one!")
             versionPropsFile = new File(fileName)
             versionPropsFile.createNewFile()
         }
