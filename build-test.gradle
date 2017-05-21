@@ -1,0 +1,20 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'eu.davidea.grabver'
+
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'eu.davidea:grabver:1.0.0'
+    }
+}
+
+versioning {
+    major 1
+    minor 2
+}
+println("TEST - VersionCode: " + versioning.versionCode)
+println("TEST - VersionName: " + versioning.versionName)
+println("TEST - FullVersionName: " + versioning.fullVersionName)
