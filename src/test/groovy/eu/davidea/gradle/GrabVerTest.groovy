@@ -32,8 +32,10 @@ class GrabVerTest {
             minor = 1
         }
         printResults("[Release + NoVersionChange]")
-        Assert.assertEquals(21, project.versioning.build)
+        Assert.assertEquals(1, project.versioning.major)
+        Assert.assertEquals(1, project.versioning.minor)
         Assert.assertEquals(2, project.versioning.patch)
+        Assert.assertEquals(21, project.versioning.build)
         Assert.assertEquals(4, project.versioning.code)
     }
 
@@ -48,8 +50,10 @@ class GrabVerTest {
             minor = 0
         }
         printResults("[Release + VersionChange]")
-        Assert.assertEquals(21, project.versioning.build)
+        Assert.assertEquals(2, project.versioning.major)
+        Assert.assertEquals(0, project.versioning.minor)
         Assert.assertEquals(0, project.versioning.patch)
+        Assert.assertEquals(21, project.versioning.build)
         Assert.assertEquals(4, project.versioning.code)
     }
 
@@ -61,21 +65,40 @@ class GrabVerTest {
             minor = 1
         }
         printResults("[NoRelease + NoVersionChange]")
-        Assert.assertEquals(21, project.versioning.build)
+        Assert.assertEquals(1, project.versioning.major)
+        Assert.assertEquals(1, project.versioning.minor)
         Assert.assertEquals(1, project.versioning.patch)
+        Assert.assertEquals(21, project.versioning.build)
         Assert.assertEquals(3, project.versioning.code)
     }
 
     @Test
-    void testAutoIncrement_NoRelease_VersionChange() throws Exception {
+    void testAutoIncrement_NoRelease_MinorVersionChange() throws Exception {
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
             major = 1
             minor = 2
         }
-        printResults("[NoRelease + VersionChange]")
-        Assert.assertEquals(21, project.versioning.build)
+        printResults("[NoRelease + MinorVersionChange]")
+        Assert.assertEquals(1, project.versioning.major)
+        Assert.assertEquals(2, project.versioning.minor)
         Assert.assertEquals(0, project.versioning.patch)
+        Assert.assertEquals(21, project.versioning.build)
+        Assert.assertEquals(3, project.versioning.code)
+    }
+
+    @Test
+    void testAutoIncrement_NoRelease_MajorVersionChange() throws Exception {
+        project.pluginManager.apply PLUGIN_ID
+        project.versioning {
+            major = 2
+            minor = 2 // expected to auto reset to 0 with a WARNING
+        }
+        printResults("[NoRelease + MajorVersionChange]")
+        Assert.assertEquals(2, project.versioning.major)
+        Assert.assertEquals(0, project.versioning.minor)
+        Assert.assertEquals(0, project.versioning.patch)
+        Assert.assertEquals(21, project.versioning.build)
         Assert.assertEquals(3, project.versioning.code)
     }
 
@@ -84,12 +107,13 @@ class GrabVerTest {
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
             major = 1
-            minor = 2
-            suffix = "RC2"
+            minor = 1
+            preRelease = "RC2"
         }
-        printResults("[NoRelease + VersionChange]")
-        Assert.assertEquals(21, project.versioning.build)
+        printResults("[NoRelease + Suffix]")
+        Assert.assertEquals(1, project.versioning.minor)
         Assert.assertEquals(0, project.versioning.patch)
+        Assert.assertEquals(21, project.versioning.build)
         Assert.assertEquals(3, project.versioning.code)
     }
 

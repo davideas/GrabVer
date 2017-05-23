@@ -19,7 +19,7 @@ class VersioningExtension {
     // Public values from user
     int major
     int minor
-    String suffix
+    String preRelease
     // Private values from properties
     private int propMajor
     private int propMinor
@@ -41,7 +41,11 @@ class VersioningExtension {
             // Auto-increment Patch if Major or Minor do not differ from user
             patch += increment
             // Auto reset Patch in case they differ
-            if (major != propMajor || minor != propMinor) {
+            if (major != propMajor || minor != propMinor || isPreRelease()) {
+                if (major != propMajor && minor != 0) {
+                    println("WARN - Auto resetting minor version")
+                    minor = 0
+                }
                 println("INFO - Auto resetting patch version")
                 patch = 0
             } else if (increment > 0 ) {
@@ -59,6 +63,10 @@ class VersioningExtension {
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
         code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "0"))
         println("INFO - Current versioning: " + toString())
+    }
+
+    private isPreRelease() {
+        return preRelease != null && !preRelease.trim().empty
     }
 
     int getMajor() {
@@ -91,15 +99,15 @@ class VersioningExtension {
     }
 
     /**
-     * @return will output {@code major.minor.patch}
+     * @return will output {@code major.minor.patch[-preRelease]}
      */
     String getVersionName() {
         evaluateVersions()
-        return (major + "." + minor + "." + patch + (suffix != null ? "-" + suffix : ""))
+        return (major + "." + minor + "." + patch + (isPreRelease() ? "-" + preRelease : ""))
     }
 
     /**
-     * @return will output {@code major.minor.patch #build built on date}
+     * @return will output {@code major.minor.patch[-preRelease] #build built on date}
      */
     String getFullVersionName() {
         return (getVersionName() + " #" + build + " built on " + getDate())
@@ -119,6 +127,7 @@ class VersioningExtension {
                 (propMajor > 0 ? propMajor : major) +
                 "." + (propMinor > 0 ? propMinor : minor) +
                 "." + patch +
+                (preRelease != null ? "-" + preRelease : "") +
                 " #" + build +
                 " code=" + code
     }

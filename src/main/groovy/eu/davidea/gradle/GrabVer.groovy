@@ -22,7 +22,7 @@ import org.gradle.api.Project
  * Major: User defined breaking changes<br/>
  * Minor: User defined new features, but backwards compatible<br/>
  * Patch: Auto generated backwards compatible bug fixes only<br/>
- * Suffix: User defined value for versionName
+ * PreRelease: User defined value for versionName
  *
  * <p><b>Build</b> - increases at each build<br/>
  * <b>Code</b> - increases at each release<br/>
@@ -37,7 +37,7 @@ import org.gradle.api.Project
 class GrabVer implements Plugin<Project> {
 
     void apply(Project project) {
-        println("===== START GrabVer v1.0.0")
+        println("===== START GrabVer v0.2.0")
 
         VersioningExtension versioning = project.extensions.create("versioning", VersioningExtension)
 
@@ -50,7 +50,7 @@ class GrabVer implements Plugin<Project> {
         }
         // Increment depends on release
         def runTasks = project.gradle.startParameter.taskNames
-        if ('assemble' in runTasks || 'assembleRelease' in runTasks || 'test_release' in runTasks) {
+        if ('assemble' in runTasks || 'release' in runTasks || 'assembleRelease' in runTasks || 'test_release' in runTasks) {
             println("INFO - Running with 'release' task: Code will auto increment")
             versioning.increment = 1
         } else {
