@@ -1,23 +1,33 @@
+[![Licence](https://img.shields.io/badge/Licence-Apache2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+ 
 # GrabVer - Gradle Automatic Build Versioning Plugin
-An plugin to generate the build number, version code and patch automatically.
+An easy to apply Gradle plugin that follows [semver.org](http://semver.org/) rules to
+automatically generate the _Patch_ version, _Build_ number, _Code_ version, while _Major_,
+_Minor_ and _Pre-Release_ suffix remain under our control.
+
+I saw plenty of plugins that require a long configuration and continuous adjustment just to update
+those numbers, if so, better without any plugin then! With this plugin we are required to manage
+only 3 variables.
+
 Inspired from <a href='https://andreborud.com/android-studio-automatic-incremental-gradle-versioning/'>Android Studio
-Automatic Incremental Gradle Versioning</a>. Customized into library with Suffix and Auto-Reset features.</p>
+Automatic Incremental Gradle Versioning</a>. Customized into library with PreRelease and Auto-Reset features.</p>
+
 > Easy to apply, it _works with any project type._
 
-## Concept
-_Major_: User defined breaking changes.<br/>
-_Minor_: User defined new features, but backwards compatible.<br/>
-_Patch_: Auto generated backwards compatible bug fixes only.<br/>
-_Suffix_: User defined value for versionName.
+## Rules
+_major_: User defined value for breaking changes.<br/>
+_minor_: User defined value for new features, but backwards compatible.<br/>
+_patch_: Auto generated value for backwards compatible bug fixes only.<br/>
+_preRelease_: User defined optional value for pre-releases suffix.
 
-**Build** - increases at each build.<br/>
-**Code** - increases at each release.<br/>
-**Patch** - increases at each release, but it auto-resets back to 0 when _Minor_ or _Major_ version increments.</p>
+**build** - increases at each build.<br/>
+**code** - increases at each release.<br/>
+**patch** - increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if pre-release is set.<br/>
+**minor** - user value, but it auto resets back to 0 when _Major_ version changes.</p>
 
- 
 ## Installation
 ```
-// 1. Run "gradlew install"
+// 1. Temporary run "gradle install" to create jar in local repository
 // 2. Configure dependencies
 ```
 ``` groovy
@@ -27,7 +37,7 @@ buildscript {
         mavenLocal()
 	}
     dependencies {
-        classpath 'eu.davidea:grabver:1.0.0'
+        classpath 'eu.davidea:grabver:0.2.0'
     }
 }
 ```
@@ -42,7 +52,7 @@ versioning {
     major = 1
     minor = 0
     // optional (any string)
-    suffix = 'RC2'
+    preRelease = 'RC1'
 }
 ```
 
@@ -52,10 +62,10 @@ versioning.major
 versioning.minor
 versioning.patch
 versioning.build
-versioning.suffix
-versioning.versionCode [.code]
-versioning.versionName
-versioning.getDate([format])
+versioning.preRelease
+versioning.versionCode // or .code
+versioning.versionName // output: "major.minor.patch[-preRelease]"
+versioning.getDate([format]) // default "yyyy.mm.dd"
 ```
 
 ### 3. Run it
@@ -63,7 +73,8 @@ versioning.getDate([format])
 // To increase build only
 gradle build
 // To increase build, code and patch
-// Patch is reset if major or minor is changed
+// Minor is reset if major is changed
+// Patch is reset if major or minor is changed or if pre-release
 gradle assembleRelease
 ```
 File `version.properties` is auto-generated, but once it's created, you can modify its content
