@@ -33,50 +33,81 @@ import org.gradle.api.Project
  * @since 19/05/2017
  * @author Davide Steduto
  */
-// TODO: version.properties for each module
 class GrabVer implements Plugin<Project> {
 
     void apply(Project project) {
-        println("===== START GrabVer v0.2.0")
-
-        VersioningExtension versioning = project.extensions.create("versioning", VersioningExtension)
-
-        // Load properties file
-        File versionFile = getFile('version.properties')
-        Properties versionProps = loadProperties(project, versionFile)
+        println("====== STARTED GrabVer v0.2.0")
+        println("====== ProjectsName=" + project.name)
 
         project.task('test_release') {
             // Dummy task to use with testing
         }
-        // Increment depends on release
+
+        VersioningExtension versioning = project.extensions.create("versioning", VersioningExtension)
+
         def runTasks = project.gradle.startParameter.taskNames
-        if ('assemble' in runTasks || 'release' in runTasks || 'assembleRelease' in runTasks || 'test_release' in runTasks) {
-            println("INFO - Running with 'release' task: Code will auto increment")
-            versioning.increment = 1
+        println("====== runTasks=" + runTasks)
+
+        // Module versioning
+        String module = project.name
+        String fileName = 'version.properties'
+        if (versioning.fromModule != null) {
+            println("INFO - Versioning from Module '" + versioning.fromModule + "'")
+            fileName = module + "/" + fileName
+            versioning.evaluated = true
+        } else if (!project.rootProject.name.equalsIgnoreCase(module)) {
+            println("INFO - Versioning Module '" + module + "'")
+            fileName = module + "/" + fileName
         } else {
-            println("INFO - Running with normal build: Code remains unchanged")
+            println("INFO - Versioning Root Project '" + module + "'")
+        }
+
+        // Load properties file
+        File versionFile = getFile(fileName)
+        Properties versionProps = loadProperties(project, versionFile)
+
+        if (!(":" + project.name + ":" in runTasks)) {
+            println("====== Not my module, exiting!")
+            versioning.evaluated = true
+            return
+        }
+
+        if (versioning.skipOnTask in runTasks) {
+            println("INFO - Skipping on Task " + versioning.skipOnTask)
+            versioning.evaluated = true
+        } else {
+            // Increment depends on release
+            if ('assemble' in runTasks || 'release' in runTasks || 'assembleRelease' in runTasks || 'test_release' in runTasks) {
+                println("INFO - Running with 'release' task: Code will auto increment")
+                versioning.increment = 1
+            } else {
+                println("INFO - Running with normal build: Code remains unchanged")
+            }
         }
 
         project.afterEvaluate {
-            // Save new values
-            println("INFO - Saving Versioning: " + versioning)
-            versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
-            versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(versioning.minor))
-            versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(versioning.patch))
-            versionProps.setProperty(VersionType.BUILD.toString(), String.valueOf(versioning.build))
-            versionProps.setProperty(VersionType.CODE.toString(), String.valueOf(versioning.code))
-            Writer writer = versionFile.newWriter()
-            versionProps.store(writer, null)
-            writer.close()
-            println("===== END GrabVer\n")
+            if (versioning.fromModule == null && !(versioning.skipOnTask in runTasks)) {
+                // Save new values
+                println("INFO - Saving Versioning: " + versioning)
+                versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
+                versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(versioning.minor))
+                versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(versioning.patch))
+                versionProps.setProperty(VersionType.PRE_RELEASE.toString(), versioning.preRelease)
+                versionProps.setProperty(VersionType.BUILD.toString(), String.valueOf(versioning.build))
+                versionProps.setProperty(VersionType.CODE.toString(), String.valueOf(versioning.code))
+                Writer writer = versionFile.newWriter()
+                versionProps.store(writer, null)
+                writer.close()
+            }
+            println("====== ENDED GrabVer\n")
         }
     }
 
     private static File getFile(String fileName) {
         File versionFile = new File(fileName)
         if (!versionFile.canRead()) {
-            println("WARNING - Could not find properties file '" + fileName + "'")
-            println("WARNING - Auto-generating content properties with default values!")
+            println("WARN - Could not find properties file '" + fileName + "'")
+            println("WARN - Auto-generating content properties with default values!")
             versionFile = new File(fileName)
             versionFile.createNewFile()
         }

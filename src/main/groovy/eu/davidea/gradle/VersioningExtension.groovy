@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package eu.davidea.gradle;
+package eu.davidea.gradle
 
 class VersioningExtension {
     // Public values from user
     int major
     int minor
     String preRelease
+    String skipOnTask = 'clean'
+    String fromModule
     // Private values from properties
     private int propMajor
     private int propMinor
@@ -27,7 +29,7 @@ class VersioningExtension {
     private int build
     private int code
 
-    private boolean evaluated = false
+    protected boolean evaluated = false
     protected int increment = 0
 
     private void evaluateVersions() {
@@ -40,14 +42,16 @@ class VersioningExtension {
             code += increment
             // Auto-increment Patch if Major or Minor do not differ from user
             patch += increment
-            // Auto reset Patch in case they differ
+            // Auto reset Patch in case they differ or preRelease is set
             if (major != propMajor || minor != propMinor || isPreRelease()) {
-                if (major != propMajor && minor != 0) {
-                    println("WARN - Auto resetting minor version")
-                    minor = 0
+                if (propMajor != 0 && major > propMajor && minor != 0) {
+                    println("ERROR - Expected minor to be 0 if major has increased")
+                    throw new IllegalArgumentException("Inconsistent minor value: major has changed but minor is not 0")
                 }
-                println("INFO - Auto resetting patch version")
-                patch = 0
+                if (patch != 0) {
+                    println("INFO - Auto resetting patch version")
+                    patch = 0
+                }
             } else if (increment > 0 ) {
                 println("INFO - Auto incrementing patch version")
             }
@@ -59,6 +63,7 @@ class VersioningExtension {
         // Load current values from properties file
         propMajor = Integer.valueOf(versionProps.getProperty(VersionType.MAJOR.toString(), "0"))
         propMinor = Integer.valueOf(versionProps.getProperty(VersionType.MINOR.toString(), "0"))
+        preRelease = versionProps.getProperty(VersionType.PRE_RELEASE.toString(), "")
         patch = Integer.valueOf(versionProps.getProperty(VersionType.PATCH.toString(), "0"))
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
         code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "0"))

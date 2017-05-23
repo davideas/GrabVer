@@ -16,5 +16,5 @@
 package eu.davidea.gradle
 
 enum VersionType {
-    MAJOR, MINOR, PATCH, BUILD, CODE
+    MAJOR, MINOR, PATCH, PRE_RELEASE, BUILD, CODE
 }

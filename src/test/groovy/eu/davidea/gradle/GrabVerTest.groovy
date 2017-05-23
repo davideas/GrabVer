@@ -87,19 +87,14 @@ class GrabVerTest {
         Assert.assertEquals(3, project.versioning.code)
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException)
     void testAutoIncrement_NoRelease_MajorVersionChange() throws Exception {
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
             major = 2
-            minor = 2 // expected to auto reset to 0 with a WARNING
+            minor = 2 // expected error due to inconsistency
         }
         printResults("[NoRelease + MajorVersionChange]")
-        Assert.assertEquals(2, project.versioning.major)
-        Assert.assertEquals(0, project.versioning.minor)
-        Assert.assertEquals(0, project.versioning.patch)
-        Assert.assertEquals(21, project.versioning.build)
-        Assert.assertEquals(3, project.versioning.code)
     }
 
     @Test
@@ -138,7 +133,7 @@ class GrabVerTest {
         versionProps.load(fis)
         fis.close()
 
-        println("===== Auto-generating content properties for test")
+        println("====== Auto-generating content properties for test")
         versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(major))
         versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(minor))
         versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(patch))
@@ -152,7 +147,7 @@ class GrabVerTest {
     private static File getFile(String fileName) {
         File versionPropsFile = new File(fileName)
         if (!versionPropsFile.canRead()) {
-            println("===== Could not find properties file '" + fileName + "', generating new one!")
+            println("====== Could not find properties file '" + fileName + "', generating new one!")
             versionPropsFile = new File(fileName)
             versionPropsFile.createNewFile()
         }

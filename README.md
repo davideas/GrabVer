@@ -1,29 +1,30 @@
 [![Licence](https://img.shields.io/badge/Licence-Apache2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
  
 # GrabVer - Gradle Automatic Build Versioning Plugin
-An easy to apply Gradle plugin that follows [semver.org](http://semver.org/) rules to
-automatically generate the _Patch_ version, _Build_ number, _Code_ version, while _Major_,
+An easy Gradle plugin that follows [semver.org](http://semver.org/) rules to
+automatically generate the _Patch_ version, _Build_ number and _Code_ version, while _Major_,
 _Minor_ and _Pre-Release_ suffix remain under our control.
 
 I saw plenty of plugins that require a long configuration and continuous adjustment just to update
 those numbers, if so, better without any plugin then! With this plugin we are required to manage
-only 3 variables.
+only 2 variables.
 
 Inspired from <a href='https://andreborud.com/android-studio-automatic-incremental-gradle-versioning/'>Android Studio
-Automatic Incremental Gradle Versioning</a>. Customized into library with PreRelease and Auto-Reset features.</p>
+Automatic Incremental Gradle Versioning</a>. Customized into library with PreRelease, Auto-Reset and Sub-Modules features.</p>
 
-> Easy to apply, it _works with any project type._
+> Easy to apply, it _works with any project type with sub modules too._
 
 ## Rules
 _major_: User defined value for breaking changes.<br/>
 _minor_: User defined value for new features, but backwards compatible.<br/>
 _patch_: Auto generated value for backwards compatible bug fixes only.<br/>
-_preRelease_: User defined optional value for pre-releases suffix.
+_preRelease_: Optional, user defined value for pre-releases suffix.<br/>
+_skipOnTask_: Optional, allows to skip versioning when a specific task is enqueued (default _clean_).
 
-**build** - increases at each build.<br/>
-**code** - increases at each release.<br/>
-**patch** - increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if pre-release is set.<br/>
-**minor** - user value, but it auto resets back to 0 when _Major_ version changes.</p>
+**build** - Increases at each build.<br/>
+**code** - Increases at each release.<br/>
+**patch** - Increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if _preRelease_ is set.<br/>
+**minor** - User define value, but it auto resets back to 0 when _Major_ version changes.</p>
 
 ## Installation
 ```
@@ -44,6 +45,7 @@ buildscript {
 
 ## Usage
 ### 1. Version configuration
+Apply the plugin in the module you desire, it will create a properties file under that module!
 ``` groovy
 apply plugin: 'eu.davidea.grabver'
 
@@ -53,6 +55,8 @@ versioning {
     minor = 0
     // optional (any string)
     preRelease = 'RC1'
+    // optional (default 'clean')
+    skipOnTask = '<task_name>'
 }
 ```
 
@@ -71,14 +75,14 @@ versioning.getDate([format]) // default "yyyy.mm.dd"
 ### 3. Run it
 ```
 // To increase build only
-gradle build
+gradle build / assembleDebug
 // To increase build, code and patch
 // Minor is reset if major is changed
 // Patch is reset if major or minor is changed or if pre-release
-gradle assembleRelease
+gradle assemble / release / assembleRelease
 ```
 File `version.properties` is auto-generated, but once it's created, you can modify its content
-as of your convenience.
+as of your convenience. Just remember to add it to your version control system.
 
 # Contributions
 Everybody is welcome to improve existing solution.
