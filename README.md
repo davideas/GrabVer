@@ -15,15 +15,15 @@ Automatic Incremental Gradle Versioning</a>. Customized into library with PreRel
 > Easy to apply, it _works with any project type with sub modules too._
 
 ## Rules
-_major_: User defined value for breaking changes.<br/>
-_minor_: User defined value for new features, but backwards compatible.<br/>
-_patch_: Auto generated value for backwards compatible bug fixes only.<br/>
-_preRelease_: Optional, user defined value for pre-releases suffix.<br/>
-_skipOnTask_: Optional, allows to skip versioning when a specific task is enqueued (default _clean_).
+_major_: User defined value for breaking changes.<br>
+_minor_: User defined value for new features, but backwards compatible.<br>
+_patch_: Auto generated value for backwards compatible bug fixes only.<br>
+_preRelease_: Optional, user defined value for pre-releases suffix.<br>
+Auto-skip versioning when a 'clean' task is enqueued. 
 
-**build** - Increases at each build.<br/>
-**code** - Increases at each release.<br/>
-**patch** - Increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if _preRelease_ is set.<br/>
+**build** - Increases at each build.<br>
+**code** - Increases at each release.<br>
+**patch** - Increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if _preRelease_ is set.<br>
 **minor** - User define value, but it auto resets back to 0 when _Major_ version changes.</p>
 
 ## Installation
@@ -55,8 +55,6 @@ versioning {
     minor = 0
     // optional (any string)
     preRelease = 'RC1'
-    // optional (default 'clean')
-    skipOnTask = '<task_name>'
 }
 ```
 
@@ -75,11 +73,11 @@ versioning.getDate([format]) // default "yyyy.mm.dd"
 ### 3. Run it
 ```
 // To increase build only
-gradle build / assembleDebug
+gradle [build | assembleDebug]
 // To increase build, code and patch
 // Minor is reset if major is changed
 // Patch is reset if major or minor is changed or if pre-release
-gradle assemble / release / assembleRelease
+gradle [assemble | release | assembleRelease]
 ```
 File `version.properties` is auto-generated, but once it's created, you can modify its content
 as of your convenience. Just remember to add it to your version control system.
