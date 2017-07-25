@@ -37,25 +37,21 @@ class GrabVer implements Plugin<Project> {
 
     void apply(Project project) {
         println("====== STARTED GrabVer v0.2.0")
-        println("====== ProjectsName=" + project.name)
+        println("INFO - ProjectsName=" + project.name)
 
         project.task('test_release') {
-            // Dummy task to use with testing
+            // Dummy task to use with running unit testing
         }
 
         VersioningExtension versioning = project.extensions.create("versioning", VersioningExtension)
 
         def runTasks = project.gradle.startParameter.taskNames
-        println("====== runTasks=" + runTasks)
+        println("INFO - runTasks=" + runTasks)
 
         // Module versioning
         String module = project.name
         String fileName = 'version.properties'
-        if (versioning.fromModule != null) {
-            println("INFO - Versioning from Module '" + versioning.fromModule + "'")
-            fileName = module + "/" + fileName
-            versioning.evaluated = true
-        } else if (!project.rootProject.name.equalsIgnoreCase(module)) {
+        if (!project.rootProject.name.equalsIgnoreCase(module)) {
             println("INFO - Versioning Module '" + module + "'")
             fileName = module + "/" + fileName
         } else {
@@ -66,27 +62,21 @@ class GrabVer implements Plugin<Project> {
         File versionFile = getFile(fileName)
         Properties versionProps = loadProperties(project, versionFile)
 
-        if (!(":" + project.name + ":" in runTasks)) {
-            println("====== Not my module, exiting!")
-            versioning.evaluated = true
-            return
-        }
-
-        if (versioning.skipOnTask in runTasks) {
+        if ('clean' in runTasks) {
             println("INFO - Skipping on Task " + versioning.skipOnTask)
             versioning.evaluated = true
         } else {
             // Increment depends on release
             if ('assemble' in runTasks || 'release' in runTasks || 'assembleRelease' in runTasks || 'test_release' in runTasks) {
-                println("INFO - Running with 'release' task: Code will auto increment")
+                println("INFO - Running with 'release' task: Code number will auto increment")
                 versioning.increment = 1
             } else {
-                println("INFO - Running with normal build: Code remains unchanged")
+                println("INFO - Running with normal build: Code number unchanged")
             }
         }
 
         project.afterEvaluate {
-            if (versioning.fromModule == null && !(versioning.skipOnTask in runTasks)) {
+            if (!('clean' in runTasks)) {
                 // Save new values
                 println("INFO - Saving Versioning: " + versioning)
                 versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))

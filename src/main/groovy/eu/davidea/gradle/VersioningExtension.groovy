@@ -20,15 +20,13 @@ class VersioningExtension {
     int major
     int minor
     String preRelease
-    String skipOnTask = 'clean'
-    String fromModule
     // Private values from properties
     private int propMajor
     private int propMinor
     private int patch
     private int build
     private int code
-
+    // Only GrabVer can access these properties
     protected boolean evaluated = false
     protected int increment = 0
 

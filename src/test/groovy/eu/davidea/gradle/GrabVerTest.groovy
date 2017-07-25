@@ -32,11 +32,11 @@ class GrabVerTest {
             minor = 1
         }
         printResults("[Release + NoVersionChange]")
-        Assert.assertEquals(1, project.versioning.major)
-        Assert.assertEquals(1, project.versioning.minor)
-        Assert.assertEquals(2, project.versioning.patch)
-        Assert.assertEquals(21, project.versioning.build)
-        Assert.assertEquals(4, project.versioning.code)
+        Assert.assertEquals("major check",1, project.versioning.major)
+        Assert.assertEquals("minor check",1, project.versioning.minor)
+        Assert.assertEquals("patch check",2, project.versioning.patch)
+        Assert.assertEquals("build check",21, project.versioning.build)
+        Assert.assertEquals("code check", 4, project.versioning.code)
     }
 
     @Test
@@ -50,11 +50,11 @@ class GrabVerTest {
             minor = 0
         }
         printResults("[Release + VersionChange]")
-        Assert.assertEquals(2, project.versioning.major)
-        Assert.assertEquals(0, project.versioning.minor)
-        Assert.assertEquals(0, project.versioning.patch)
-        Assert.assertEquals(21, project.versioning.build)
-        Assert.assertEquals(4, project.versioning.code)
+        Assert.assertEquals("major check",2, project.versioning.major)
+        Assert.assertEquals("minor check",0, project.versioning.minor)
+        Assert.assertEquals("patch check",0, project.versioning.patch)
+        Assert.assertEquals("build check",21, project.versioning.build)
+        Assert.assertEquals("code check", 4, project.versioning.code)
     }
 
     @Test
@@ -65,11 +65,11 @@ class GrabVerTest {
             minor = 1
         }
         printResults("[NoRelease + NoVersionChange]")
-        Assert.assertEquals(1, project.versioning.major)
-        Assert.assertEquals(1, project.versioning.minor)
-        Assert.assertEquals(1, project.versioning.patch)
-        Assert.assertEquals(21, project.versioning.build)
-        Assert.assertEquals(3, project.versioning.code)
+        Assert.assertEquals("major check",1, project.versioning.major)
+        Assert.assertEquals("minor check",1, project.versioning.minor)
+        Assert.assertEquals("patch check",1, project.versioning.patch)
+        Assert.assertEquals("build check",21, project.versioning.build)
+        Assert.assertEquals("code check", 3, project.versioning.code)
     }
 
     @Test
@@ -80,11 +80,11 @@ class GrabVerTest {
             minor = 2
         }
         printResults("[NoRelease + MinorVersionChange]")
-        Assert.assertEquals(1, project.versioning.major)
-        Assert.assertEquals(2, project.versioning.minor)
-        Assert.assertEquals(0, project.versioning.patch)
-        Assert.assertEquals(21, project.versioning.build)
-        Assert.assertEquals(3, project.versioning.code)
+        Assert.assertEquals("major check",1, project.versioning.major)
+        Assert.assertEquals("minor check",2, project.versioning.minor)
+        Assert.assertEquals("patch check",0, project.versioning.patch)
+        Assert.assertEquals("build check",21, project.versioning.build)
+        Assert.assertEquals("code check", 3, project.versioning.code)
     }
 
     @Test(expected = IllegalArgumentException)
@@ -106,10 +106,10 @@ class GrabVerTest {
             preRelease = "RC2"
         }
         printResults("[NoRelease + Suffix]")
-        Assert.assertEquals(1, project.versioning.minor)
-        Assert.assertEquals(0, project.versioning.patch)
-        Assert.assertEquals(21, project.versioning.build)
-        Assert.assertEquals(3, project.versioning.code)
+        Assert.assertEquals("minor check",1, project.versioning.minor)
+        Assert.assertEquals("patch check",0, project.versioning.patch)
+        Assert.assertEquals("build check",21, project.versioning.build)
+        Assert.assertEquals("code check", 3, project.versioning.code)
     }
 
     /**

@@ -1,2 +1,4 @@
 rootProject.name = 'grabver'
+include 'module_a'
+include 'module_b'
 
