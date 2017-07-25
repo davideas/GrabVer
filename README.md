@@ -24,7 +24,7 @@ Auto-skip versioning when a 'clean' task is enqueued.
 **build** - Increases at each build.<br>
 **code** - Increases at each release.<br>
 **patch** - Increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if _preRelease_ is set.<br>
-**minor** - User define value, but it auto resets back to 0 when _Major_ version changes.</p>
+**minor** - User defined value, but it auto resets back to 0 when _Major_ version changes.</p>
 
 ## Installation
 ```
@@ -36,7 +36,7 @@ buildscript {
     repositories {
         // Publishing is in progress! Please, use local repository for now
         mavenLocal()
-	}
+    }
     dependencies {
         classpath 'eu.davidea:grabver:0.2.0'
     }
