@@ -97,23 +97,12 @@ class VersioningExtension {
         return code
     }
 
-    int getVersionCode() {
-        return getCode()
-    }
-
     /**
      * @return will output {@code major.minor.patch[-preRelease]}
      */
     String getName() {
         evaluateVersions()
         return (major + "." + minor + "." + patch + (isPreRelease() ? "-" + preRelease : ""))
-    }
-
-    /**
-     * @return Same as {@link #getName}
-     */
-    String getVersionName() {
-        return getName()
     }
 
     /**

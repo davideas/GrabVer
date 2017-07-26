@@ -1,15 +1,16 @@
 buildscript {
     repositories {
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url 'https://plugins.gradle.org/m2/'
         }
     }
     dependencies {
-        classpath "com.gradle.publish:plugin-publish-plugin:0.9.7"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.7'
     }
 }
 
-apply plugin: "com.gradle.plugin-publish"
+apply plugin: 'com.gradle.plugin-publish'
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven'
@@ -27,19 +28,54 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-group 'eu.davidea'
-version '0.3.0'
+ext {
+    // Author
+    developerId = 'davideas'
+    developerName = 'Davide Steduto'
+    developerEmail = 'dave.dna@gmail.com'
+
+    // Library Repository
+    libraryName = 'GrabVer'
+    libraryVersion = '0.3.0'
+    displayName = 'Gradle Automatic Build Versioning Plugin'
+    libraryDescription = 'An easy Gradle plugin that follows semver.org rules to automatically generate the Patch version, Build number and Code version, while Major, Minor and Pre-Release suffix remain under our control.'
+    libraryLabels = ['semver', 'version', 'versioning', 'build-versioning', 'automatic-versioning', 'intellij-idea', 'android-studio', 'auto-reset']
+    siteUrl = 'https://github.com/davideas/GrabVer'
+    gitUrl = 'https://github.com/davideas/GrabVer.git'
+    bintrayRepo = 'maven'
+    bintrayName = 'grabver'
+    publishedGroupId = 'eu.davidea'
+    id = publishedGroupId + '.' + bintrayName
+
+    // License
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ['Apache-2.0']
+}
+
+group publishedGroupId
+version libraryVersion
 
 pluginBundle {
-    website = 'https://github.com/davideas/GrabVer'
-    vcsUrl = 'https://github.com/davideas/GrabVer'
-    description = 'An easy Gradle plugin that follows semver.org rules to automatically generate the Patch version, Build number and Code version, while Major, Minor and Pre-Release suffix remain under our control.'
-    tags = ['semver', 'version', 'versioning', 'build-versioning', 'automatic-versioning', 'intellij-idea', 'android-studio', 'auto-reset']
+    website = project.siteUrl
+    vcsUrl = project.gitUrl
+    description = project.libraryDescription
+    tags = project.libraryLabels
 
     plugins {
         grabverPlugin {
-            id = 'eu.davidea.grabver'
-            displayName = 'Gradle Automatic Build Versioning Plugin'
+            id = project.id
+            displayName = project.displayName
         }
     }
+
+    mavenCoordinates {
+        groupId = project.publishedGroupId
+        artifactId = project.bintrayName
+        version = project.libraryVersion
+    }
+}
+
+if (gradle.getStartParameter().getTaskNames().contains("bintrayUpload")) {
+    apply from: 'jfrog-bintray-publish.gradle'
 }

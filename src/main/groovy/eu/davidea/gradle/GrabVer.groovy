@@ -68,7 +68,7 @@ class GrabVer implements Plugin<Project> {
             versioning.evaluated = true
         } else {
             // Increment depends on release
-            if ('assemble' in runTasks || 'release' in runTasks || 'assembleRelease' in runTasks || 'grabverRelease' in runTasks) {
+            if ('assemble' in runTasks || 'assembleRelease' in runTasks || 'grabverRelease' in runTasks) {
                 println("INFO - Running with 'release' task: 'Code' version will auto increment")
                 versioning.increment = 1
             } else {
