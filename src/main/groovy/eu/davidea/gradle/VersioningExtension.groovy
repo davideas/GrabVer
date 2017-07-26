@@ -104,16 +104,27 @@ class VersioningExtension {
     /**
      * @return will output {@code major.minor.patch[-preRelease]}
      */
-    String getVersionName() {
+    String getName() {
         evaluateVersions()
         return (major + "." + minor + "." + patch + (isPreRelease() ? "-" + preRelease : ""))
+    }
+
+    /**
+     * @return Same as {@link #getName}
+     */
+    String getVersionName() {
+        return getName()
     }
 
     /**
      * @return will output {@code major.minor.patch[-preRelease] #build built on date}
      */
     String getFullVersionName() {
-        return (getVersionName() + " #" + build + " built on " + getDate())
+        return (getName() + " #" + build + getBuiltOn())
+    }
+
+    static String getBuiltOn() {
+        return " built on " + getDate()
     }
 
     static String getDate() {

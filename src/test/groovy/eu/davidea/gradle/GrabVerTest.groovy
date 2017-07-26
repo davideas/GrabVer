@@ -24,7 +24,7 @@ class GrabVerTest {
     @Test
     void testAutoIncrement_Release_NoVersionChange() throws Exception {
         List tasks = new ArrayList<>()
-        tasks.add("test_release")
+        tasks.add("grabverRelease")
         project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
@@ -42,7 +42,7 @@ class GrabVerTest {
     @Test
     void testAutoIncrement_Release_VersionChange() throws Exception {
         List tasks = new ArrayList<>()
-        tasks.add("test_release")
+        tasks.add("grabverRelease")
         project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {

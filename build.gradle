@@ -1,12 +1,21 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.gradle.publish:plugin-publish-plugin:0.9.7"
+    }
+}
+
+apply plugin: "com.gradle.plugin-publish"
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven'
 
-group 'eu.davidea'
-version '0.2.0'
-
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -16,4 +25,21 @@ dependencies {
 
     testCompile gradleTestKit()
     testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+group 'eu.davidea'
+version '0.3.0'
+
+pluginBundle {
+    website = 'https://github.com/davideas/GrabVer'
+    vcsUrl = 'https://github.com/davideas/GrabVer'
+    description = 'An easy Gradle plugin that follows semver.org rules to automatically generate the Patch version, Build number and Code version, while Major, Minor and Pre-Release suffix remain under our control.'
+    tags = ['semver', 'version', 'versioning', 'build-versioning', 'automatic-versioning', 'intellij-idea', 'android-studio', 'auto-reset']
+
+    plugins {
+        grabverPlugin {
+            id = 'eu.davidea.grabver'
+            displayName = 'Gradle Automatic Build Versioning Plugin'
+        }
+    }
 }

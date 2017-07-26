@@ -38,7 +38,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'eu.davidea:grabver:0.2.0'
+        classpath 'eu.davidea:grabver:0.3.0'
     }
 }
 ```
@@ -77,7 +77,7 @@ gradle [build | assembleDebug]
 // To increase build, code and patch
 // Minor is reset if major is changed
 // Patch is reset if major or minor is changed or if pre-release
-gradle [assemble | release | assembleRelease]
+gradle [assemble | release | assembleRelease | grabverRelease]
 ```
 File `version.properties` is auto-generated, but once it's created, you can modify its content
 as of your convenience. Just remember to add it to your version control system.
