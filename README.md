@@ -1,6 +1,8 @@
 [![Licence](https://img.shields.io/badge/Licence-Apache2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Gradle](https://img.shields.io/badge/Gradle-Plugin-green.svg)](https://plugins.gradle.org/plugin/eu.davidea.grabver)
 
+<p align="center"><img src="./art/grabver.png"></p>
+
 # GrabVer - Gradle Automatic Build Versioning Plugin
 An easy Gradle plugin that follows [semver.org](http://semver.org/) rules to
 automatically generate the _Patch_ version, _Build_ number and _Code_ version, while _Major_,
