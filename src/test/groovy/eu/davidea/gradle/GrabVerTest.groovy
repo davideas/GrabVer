@@ -119,8 +119,8 @@ class GrabVerTest {
      */
     private void printResults(String title) {
         println("TEST - " + title)
-        println("TEST - versionCode=" + project.versioning.versionCode)
-        println("TEST - versionName=" + project.versioning.versionName)
+        println("TEST - code=" + project.versioning.code)
+        println("TEST - name=" + project.versioning.name)
         println("TEST - fullVersionName=" + project.versioning.fullVersionName)
         println("TEST - " + project.versioning)
     }

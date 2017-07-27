@@ -13,6 +13,6 @@ versioning {
     major 1
     minor 1
 }
-println("MODULE_A - VersionCode: " + versioning.versionCode)
-println("MODULE_A - VersionName: " + versioning.versionName)
+println("MODULE_A - VersionCode: " + versioning.code)
+println("MODULE_A - VersionName: " + versioning.name)
 println("MODULE_A - FullVersionName: " + versioning.fullVersionName)

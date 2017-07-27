@@ -15,6 +15,6 @@ versioning {
     major 1
     minor 2
 }
-println("TEST - VersionCode: " + versioning.versionCode)
-println("TEST - VersionName: " + versioning.versionName)
+println("TEST - VersionCode: " + versioning.code)
+println("TEST - VersionName: " + versioning.name)
 println("TEST - FullVersionName: " + versioning.fullVersionName)

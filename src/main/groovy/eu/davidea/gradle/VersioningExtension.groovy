@@ -130,7 +130,7 @@ class VersioningExtension {
                 (propMajor > 0 ? propMajor : major) +
                 "." + (propMinor > 0 ? propMinor : minor) +
                 "." + patch +
-                (preRelease != null ? "-" + preRelease : "") +
+                (preRelease != null && !preRelease.isEmpty() ? "-" + preRelease : "") +
                 " #" + build +
                 " code=" + code
     }
