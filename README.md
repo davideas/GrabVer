@@ -26,10 +26,10 @@ Auto-skip versioning when 'clean' task is enqueued.
 **build** - Increases at each build.<br>
 **code** - Increases at each release.<br>
 **patch** - Increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if _preRelease_ is set.<br>
-**minor** - User defined value, but it auto resets back to 0 when _Major_ version changes.</p>
+**minor** - User defined value, it must be coherent(=0) if you increase _Major_ version.
 
 ## Installation
-Configure script dependences in the project build.gradle file: 
+Configure script dependencies in the project _build.gradle_ file: 
 ``` groovy
 buildscript {
     repositories {
@@ -74,25 +74,28 @@ versioning.date // or .getDate([format]) - default "yyyy.mm.dd"
 ### 3. Run it
 - Via command line:
 ```
-// To increase build only
+// To increase build only:
+// - Code and Patch remain unchanged
 gradle [build | assembleDebug]
 
-// To increase build, code and patch
-// Minor is reset if major is changed
-// Patch is reset if major or minor is changed or if pre-release
+// To increase build, patch and code:
+// - Code and Patch are increased because of release
+// - But Patch can be resetted if Major or Minor is changed or if preRelease is set
 gradle [assemble | assembleRelease | grabverRelease]
 ```
-- In Android Studio via menu build > Build APK | Generate signed APK
+- In Android Studio:
+  - via menu _build > Build APK_ (assembleDebug) | _Generate signed APK_ (assembleRelease).
+  - by _running the App_ (assembleDebug | assembleRelease, depending by the build variant).
 
 **Note:** File `version.properties` is auto-generated, but once it's created, you can modify its content
-as of your convenience. Just remember to add it to your version control system.
+as of your convenience. Just remember to add it to your Version Control System.
 
 # Contributions
 Everybody is welcome to improve existing solution.
 
 **Note:** Unit tests work fine if you open the project with IntelliJ Idea, while with Android Studio
 they don't. Alternatively, you can simulate a real build script by running `gradle install`
-and `gradle --build-file build-test.gradle [grabverRelease]` or testing with modules `gradle build`.
+and `gradle --build-file build-test.gradle [grabverRelease]` OR testing with modules `gradle build [grabverRelease]`.
 
 # License
 
