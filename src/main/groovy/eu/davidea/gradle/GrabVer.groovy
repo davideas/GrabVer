@@ -36,7 +36,7 @@ import org.gradle.api.Project
 class GrabVer implements Plugin<Project> {
 
     void apply(Project project) {
-        println("====== STARTED GrabVer v0.3.0")
+        println("====== STARTED GrabVer v0.4.0")
         println("INFO - ProjectName=" + project.name)
 
         project.task('grabverRelease') {
@@ -51,20 +51,22 @@ class GrabVer implements Plugin<Project> {
 
         // Module versioning
         String module = project.name
-        String fileName = 'version.properties'
+        String filename = 'version.properties'
         if (!project.rootProject.name.equalsIgnoreCase(module)) {
             println("INFO - Versioning Module '" + module + "'")
-            fileName = module + "/" + fileName
+            filename = module + "\\" + filename
         } else {
             println("INFO - Versioning Root Project '" + module + "'")
         }
+        filename = project.rootDir.toString() + "\\" + filename
+        println("INFO - Versioning Filename: '" + filename + "'")
 
         // Load properties file
-        File versionFile = getFile(fileName)
+        File versionFile = getFile(filename)
         Properties versionProps = loadProperties(project, versionFile)
 
-        if ('clean' in runTasks) {
-            println("INFO - Skipping on Task " + versioning.skipOnTask)
+        if ('clean' in runTasks || 'test' in runTasks) {
+            println("INFO - Skipping on Task clean & test")
             versioning.evaluated = true
         } else {
             // Increment depends on release
@@ -99,7 +101,6 @@ class GrabVer implements Plugin<Project> {
         if (!versionFile.canRead()) {
             println("WARN - Could not find properties file '" + fileName + "'")
             println("WARN - Auto-generating content properties with default values!")
-            versionFile = new File(fileName)
             versionFile.createNewFile()
         }
         return versionFile

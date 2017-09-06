@@ -21,7 +21,7 @@ _major_: User defined value for breaking changes.<br>
 _minor_: User defined value for new features, but backwards compatible.<br>
 _patch_: Auto generated value for backwards compatible bug fixes only.<br>
 _preRelease_: Optional, user defined value for pre-releases suffix.<br>
-Auto-skip versioning when 'clean' task is enqueued. 
+Auto-skip versioning when 'clean' or 'test' tasks are enqueued.
 
 **build** - Increases at each build.<br>
 **code** - Increases at each release.<br>
@@ -37,7 +37,7 @@ buildscript {
         maven {url "http://dl.bintray.com/davideas/maven"}
     }
     dependencies {
-        classpath 'eu.davidea:grabver:0.3.0'
+        classpath 'eu.davidea:grabver:0.4.0'
     }
 }
 ```
