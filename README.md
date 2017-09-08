@@ -99,7 +99,7 @@ and `gradle --build-file build-test.gradle [grabverRelease]` OR testing with mod
 
 # License
 
-    Copyright 2017 Davide Steduto
+    Copyright 2017 Davidea Solutions Sprl
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
