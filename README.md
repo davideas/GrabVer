@@ -34,10 +34,14 @@ Configure script dependencies in the project _build.gradle_ file:
 buildscript {
     repositories {
         jcenter() //not yet
-        maven {url "http://dl.bintray.com/davideas/maven"}
+        maven { url "http://dl.bintray.com/davideas/maven" }
+        // or Gradle Plugins Repository
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'eu.davidea:grabver:0.4.0'
+        classpath 'eu.davidea:grabver:0.4.1'
+        // or with Gradle Plugins Repository
+        classpath "gradle.plugin.eu.davidea:grabver:0.4.1"
     }
 }
 ```
@@ -64,11 +68,11 @@ versioning.minor
 versioning.patch
 versioning.build
 versioning.preRelease
-versioning.code // needed for all Android projects
-versioning.name // output: "major.minor.patch[-preRelease]"
+versioning.code            // needed for all Android projects
+versioning.name            // output: "major.minor.patch[-preRelease]"
 versioning.fullVersionName // output: "major.minor.patch[-preRelease] #build built on yyyy.mm.dd"
-versioning.builtOn // output: " built on yyyy.mm.dd"
-versioning.date // or .getDate([format]) - default "yyyy.mm.dd"
+versioning.builtOn         // output: " built on yyyy.mm.dd"
+versioning.date            // or .getDate([format]) - default "yyyy.mm.dd"
 ```
 
 ### 3. Run it

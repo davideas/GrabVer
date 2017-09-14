@@ -21,6 +21,7 @@ class VersioningExtension {
     int minor
     String preRelease
     // Private values from properties
+    private String propPreRelease
     private int propMajor
     private int propMinor
     private int patch
@@ -53,6 +54,7 @@ class VersioningExtension {
             } else if (increment > 0 ) {
                 println("INFO - Auto incrementing patch version")
             }
+            propPreRelease = preRelease
             evaluated = true
         }
     }
@@ -61,7 +63,7 @@ class VersioningExtension {
         // Load current values from properties file
         propMajor = Integer.valueOf(versionProps.getProperty(VersionType.MAJOR.toString(), "0"))
         propMinor = Integer.valueOf(versionProps.getProperty(VersionType.MINOR.toString(), "0"))
-        preRelease = versionProps.getProperty(VersionType.PRE_RELEASE.toString(), "")
+        propPreRelease = versionProps.getProperty(VersionType.PRE_RELEASE.toString(), "")
         patch = Integer.valueOf(versionProps.getProperty(VersionType.PATCH.toString(), "0"))
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
         code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "0"))
@@ -130,7 +132,7 @@ class VersioningExtension {
                 (propMajor > 0 ? propMajor : major) +
                 "." + (propMinor > 0 ? propMinor : minor) +
                 "." + patch +
-                (preRelease != null && !preRelease.isEmpty() ? "-" + preRelease : "") +
+                (propPreRelease != null && !propPreRelease.isEmpty() ? "-" + propPreRelease : "") +
                 " #" + build +
                 " code=" + code
     }

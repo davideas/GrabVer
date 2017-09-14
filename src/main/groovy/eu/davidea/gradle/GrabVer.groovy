@@ -36,7 +36,7 @@ import org.gradle.api.Project
 class GrabVer implements Plugin<Project> {
 
     void apply(Project project) {
-        println("====== STARTED GrabVer v0.4.0")
+        println("====== STARTED GrabVer v0.4.1")
         println("INFO - ProjectName=" + project.name)
 
         project.task('grabverRelease') {
