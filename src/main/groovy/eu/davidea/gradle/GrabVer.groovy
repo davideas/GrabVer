@@ -15,6 +15,7 @@
  */
 package eu.davidea.gradle
 
+import nu.studer.java.util.OrderedProperties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -36,7 +37,7 @@ import org.gradle.api.Project
 class GrabVer implements Plugin<Project> {
 
     void apply(Project project) {
-        println("====== STARTED GrabVer v0.4.1")
+        println("====== STARTED GrabVer v0.5.0")
         println("INFO - ProjectName=" + project.name)
 
         project.task('grabverRelease') {
@@ -63,7 +64,7 @@ class GrabVer implements Plugin<Project> {
 
         // Load properties file
         File versionFile = getFile(filename)
-        Properties versionProps = loadProperties(project, versionFile)
+        OrderedProperties versionProps = loadProperties(project, versionFile)
 
         if ('clean' in runTasks || 'test' in runTasks) {
             println("INFO - Skipping on Task clean & test")
@@ -85,7 +86,7 @@ class GrabVer implements Plugin<Project> {
                 versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
                 versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(versioning.minor))
                 versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(versioning.patch))
-                versionProps.setProperty(VersionType.PRE_RELEASE.toString(), versioning.preRelease)
+                versionProps.setProperty(VersionType.PRE_RELEASE.toString(), versioning.preRelease != null ? versioning.preRelease : "")
                 versionProps.setProperty(VersionType.BUILD.toString(), String.valueOf(versioning.build))
                 versionProps.setProperty(VersionType.CODE.toString(), String.valueOf(versioning.code))
                 Writer writer = versionFile.newWriter()
@@ -106,9 +107,9 @@ class GrabVer implements Plugin<Project> {
         return versionFile
     }
 
-    private static Properties loadProperties(Project project, File versionFile) {
+    private static OrderedProperties loadProperties(Project project, File versionFile) {
         FileInputStream fis = new FileInputStream(versionFile)
-        Properties versionProps = new Properties()
+        OrderedProperties versionProps = new OrderedProperties()
         versionProps.load(fis)
         project.versioning.loadVersions(versionProps)
         fis.close()

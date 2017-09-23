@@ -15,6 +15,8 @@
  */
 package eu.davidea.gradle
 
+import nu.studer.java.util.OrderedProperties
+
 class VersioningExtension {
     // Public values from user
     int major
@@ -59,7 +61,7 @@ class VersioningExtension {
         }
     }
 
-    protected void loadVersions(Properties versionProps) {
+    protected void loadVersions(OrderedProperties versionProps) {
         // Load current values from properties file
         propMajor = Integer.valueOf(versionProps.getProperty(VersionType.MAJOR.toString(), "0"))
         propMinor = Integer.valueOf(versionProps.getProperty(VersionType.MINOR.toString(), "0"))
