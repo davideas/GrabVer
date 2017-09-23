@@ -39,9 +39,9 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'eu.davidea:grabver:0.4.1'
+        classpath 'eu.davidea:grabver:0.5.0'
         // or with Gradle Plugins Repository
-        classpath "gradle.plugin.eu.davidea:grabver:0.4.1"
+        classpath "gradle.plugin.eu.davidea:grabver:0.5.0"
     }
 }
 ```

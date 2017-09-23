@@ -1,5 +1,6 @@
 package eu.davidea.gradle
 
+import nu.studer.java.util.OrderedProperties
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Before
@@ -128,7 +129,7 @@ class GrabVerTest {
     private static void simulateProperties(int major, int minor, int patch, int build, int code) {
         // Load properties file
         File versionFile = getFile('version.properties')
-        Properties versionProps = new Properties()
+        OrderedProperties versionProps = new OrderedProperties()
         FileInputStream fis = new FileInputStream(versionFile)
         versionProps.load(fis)
         fis.close()

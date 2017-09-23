@@ -2,12 +2,23 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'eu.davidea.grabver'
 
+/*
+ * INSTRUCTIONS to test new Version:
+ * - Change versions
+ * - Use mavenLocal() in repositories
+ * - Execute:
+ * gradle install
+ * - Specify the build file (--build-file):
+ * gradle -b build-test.gradle
+ */
 buildscript {
     repositories {
+        jcenter()
         mavenLocal()
     }
+    //noinspection GroovyAssignabilityCheck
     dependencies {
-        classpath 'eu.davidea:grabver:0.4.1'
+        classpath 'eu.davidea:grabver:0.5.0'
     }
 }
 
