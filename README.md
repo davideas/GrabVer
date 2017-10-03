@@ -29,11 +29,13 @@ Auto-skip versioning when 'clean' or 'test' tasks are enqueued.
 **minor** - User defined value, it must be coherent(=0) if you increase _Major_ version.
 
 ## Installation
-Configure script dependencies in the project _build.gradle_ file: 
+Configure script dependencies in the project _build.gradle_ file:
 ``` groovy
 buildscript {
     repositories {
-        jcenter() //not yet
+        // Please Use jcenter for dependecies: mavenCentral is not enough
+        jcenter()
+        // and (for now)
         maven { url "http://dl.bintray.com/davideas/maven" }
         // or Gradle Plugins Repository
         maven { url "https://plugins.gradle.org/m2/" }

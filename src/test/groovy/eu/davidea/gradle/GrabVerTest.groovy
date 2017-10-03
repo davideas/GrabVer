@@ -120,10 +120,10 @@ class GrabVerTest {
      */
     private void printResults(String title) {
         println("TEST - " + title)
-        println("TEST - code=" + project.versioning.code)
-        println("TEST - name=" + project.versioning.name)
-        println("TEST - fullVersionName=" + project.versioning.fullVersionName)
-        println("TEST - " + project.versioning)
+        println("TEST - code=$project.versioning.code")
+        println("TEST - name=$project.versioning.name")
+        println("TEST - fullVersionName: $project.versioning.fullVersionName")
+        println("TEST - New versioning: $project.versioning")
     }
 
     private static void simulateProperties(int major, int minor, int patch, int build, int code) {

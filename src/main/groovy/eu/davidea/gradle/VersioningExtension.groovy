@@ -69,7 +69,7 @@ class VersioningExtension {
         patch = Integer.valueOf(versionProps.getProperty(VersionType.PATCH.toString(), "0"))
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
         code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "0"))
-        println("INFO - Current versioning: " + toString())
+        println("INFO - Current versioning: " + toStringCurrent())
     }
 
     private isPreRelease() {
@@ -129,12 +129,16 @@ class VersioningExtension {
         return date.format(format)
     }
 
-    String toString() {
-        return (major > 0 ? "u" + major + "." + minor + " - " : "") +
-                (propMajor > 0 ? propMajor : major) +
-                "." + (propMinor > 0 ? propMinor : minor) +
-                "." + patch +
+    String toStringCurrent() {
+        return propMajor + "." + propMinor + "." + patch +
                 (propPreRelease != null && !propPreRelease.isEmpty() ? "-" + propPreRelease : "") +
+                " #" + build +
+                " code=" + code
+    }
+
+    String toString() {
+        return major + "." + minor + "." + patch +
+                (preRelease != null && !preRelease.isEmpty() ? "-" + preRelease : "") +
                 " #" + build +
                 " code=" + code
     }
