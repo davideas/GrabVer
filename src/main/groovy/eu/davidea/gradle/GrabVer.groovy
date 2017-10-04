@@ -37,18 +37,18 @@ import org.gradle.api.Project
 class GrabVer implements Plugin<Project> {
 
     void apply(Project project) {
-        println("====== STARTED GrabVer v0.5.0")
+        println("====== STARTED GrabVer v0.6.0")
         println("INFO - ProjectName=" + project.name)
 
         project.task('grabverRelease') {
             // Dummy task to trigger release versioning (also used in unit test)
         }
+        project.task('grabverSkip') {
+            // Dummy task to skip versioning (also used in unit test)
+        }
 
         // Create new empty versioning instance
         VersioningExtension versioning = project.extensions.create("versioning", VersioningExtension)
-
-        def runTasks = project.gradle.startParameter.taskNames
-        println("INFO - runTasks=" + runTasks)
 
         // Module versioning
         String module = project.name
@@ -66,12 +66,16 @@ class GrabVer implements Plugin<Project> {
         File versionFile = getFile(filename)
         OrderedProperties versionProps = loadProperties(project, versionFile)
 
-        if ('clean' in runTasks || 'test' in runTasks) {
-            println("INFO - Skipping on Task clean & test")
+        // Check runTasks
+        def runTasks = project.gradle.startParameter.taskNames
+        println("INFO - runTasks=" + runTasks)
+
+        if (runTasks.contains("clean") || runTasks.contains("test") || runTasks.contains("grabverSkip")) {
+            println("INFO - Skipping on Task: clean, test & grabverSkip")
             versioning.evaluated = true
         } else {
             // Increment depends on release
-            if ('assemble' in runTasks || 'assembleRelease' in runTasks || 'grabverRelease' in runTasks) {
+            if (runTasks.contains("grabverRelease") || runTasks.contains(":" + module + ":assembleRelease")) {
                 println("INFO - Running with 'release' task: 'Code' version will auto increment")
                 versioning.increment = 1
             } else {
@@ -82,7 +86,7 @@ class GrabVer implements Plugin<Project> {
         project.afterEvaluate {
             if (!('clean' in runTasks)) {
                 // Save new values
-                println("INFO - Saving Versioning: " + versioning)
+                println("INFO - Saving versioning: " + versioning)
                 versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
                 versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(versioning.minor))
                 versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(versioning.patch))

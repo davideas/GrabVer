@@ -138,7 +138,7 @@ class VersioningExtension {
 
     String toString() {
         return major + "." + minor + "." + patch +
-                (preRelease != null && !preRelease.isEmpty() ? "-" + preRelease : "") +
+                (isPreRelease() ? "-" + preRelease : "") +
                 " #" + build +
                 " code=" + code
     }

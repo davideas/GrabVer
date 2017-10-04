@@ -41,6 +41,25 @@ class GrabVerTest {
     }
 
     @Test
+    void testAutoIncrement_Skip_Versioning() throws Exception {
+        List tasks = new ArrayList<>()
+        tasks.add("grabverSkip")
+        tasks.add("grabverRelease")
+        project.gradle.startParameter.setTaskNames(tasks)
+        project.pluginManager.apply PLUGIN_ID
+        project.versioning {
+            major = 1
+            minor = 1
+        }
+        printResults("[Skip]")
+        Assert.assertEquals("major check",1, project.versioning.major)
+        Assert.assertEquals("minor check",1, project.versioning.minor)
+        Assert.assertEquals("patch check",1, project.versioning.patch)
+        Assert.assertEquals("build check",20, project.versioning.build)
+        Assert.assertEquals("code check", 3, project.versioning.code)
+    }
+
+    @Test
     void testAutoIncrement_Release_VersionChange() throws Exception {
         List tasks = new ArrayList<>()
         tasks.add("grabverRelease")
