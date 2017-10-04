@@ -21,7 +21,7 @@ _major_: User defined value for breaking changes.<br>
 _minor_: User defined value for new features, but backwards compatible.<br>
 _patch_: Auto generated value for backwards compatible bug fixes only.<br>
 _preRelease_: Optional, user defined value for pre-releases suffix.<br>
-Auto-skip versioning when 'clean' or 'test' tasks are enqueued.
+Auto-skip versioning when 'clean', 'test' or 'grabverSkip' tasks are enqueued.
 
 **build** - Increases at each build.<br>
 **code** - Increases at each release.<br>
@@ -87,7 +87,7 @@ gradle [build | assembleDebug]
 // To increase build, patch and code:
 // - Code and Patch are increased because of release
 // - But Patch can be resetted if Major or Minor is changed or if preRelease is set
-gradle [assemble | assembleRelease | grabverRelease]
+gradle [grabverRelease | assembleRelease]
 ```
 - In Android Studio:
   - via menu _build > Build APK_ (assembleDebug) | _Generate signed APK_ (assembleRelease).
