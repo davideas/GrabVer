@@ -55,11 +55,11 @@ class GrabVer implements Plugin<Project> {
         String filename = 'version.properties'
         if (!project.rootProject.name.equalsIgnoreCase(module)) {
             println("INFO - Versioning Module '" + module + "'")
-            filename = module + "\\" + filename
+            filename = module + File.seperator + filename
         } else {
             println("INFO - Versioning Root Project '" + module + "'")
         }
-        filename = project.rootDir.toString() + "\\" + filename
+        filename = project.rootDir.toString() + File.seperator + filename
         println("INFO - Versioning Filename: '" + filename + "'")
 
         // Load properties file
