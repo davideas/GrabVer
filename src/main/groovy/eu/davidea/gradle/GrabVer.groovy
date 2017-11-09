@@ -18,6 +18,8 @@ package eu.davidea.gradle
 import nu.studer.java.util.OrderedProperties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskState
 
 /**
  * Major: User defined breaking changes<br>
@@ -83,21 +85,28 @@ class GrabVer implements Plugin<Project> {
             }
         }
 
-        project.afterEvaluate {
-            if (!('clean' in runTasks)) {
-                // Save new values
-                println("INFO - Saving versioning: " + versioning)
-                versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
-                versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(versioning.minor))
-                versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(versioning.patch))
-                versionProps.setProperty(VersionType.PRE_RELEASE.toString(), versioning.preRelease != null ? versioning.preRelease : "")
-                versionProps.setProperty(VersionType.BUILD.toString(), String.valueOf(versioning.build))
-                versionProps.setProperty(VersionType.CODE.toString(), String.valueOf(versioning.code))
-                Writer writer = versionFile.newWriter()
-                versionProps.store(writer, null)
-                writer.close()
+        project.gradle.taskGraph.afterTask { Task task, TaskState state ->
+            if (task.project.name == project.name && (task.name == "compileJava" || task.name == "compileDebugSources")) {
+                if (state.failure) {
+                    println("ERROR - " + project.name + ":" + task.name + " TaskState failed")
+                } else {
+                    println("INFO - " + project.name + ":" + task.name + " TaskState succeeded")
+                    if (!('clean' in runTasks)) {
+                        // Save new values
+                        println("INFO - Saving versioning: " + versioning)
+                        versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
+                        versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(versioning.minor))
+                        versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(versioning.patch))
+                        versionProps.setProperty(VersionType.PRE_RELEASE.toString(), versioning.preRelease != null ? versioning.preRelease : "")
+                        versionProps.setProperty(VersionType.BUILD.toString(), String.valueOf(versioning.build))
+                        versionProps.setProperty(VersionType.CODE.toString(), String.valueOf(versioning.code))
+                        Writer writer = versionFile.newWriter()
+                        versionProps.store(writer, null)
+                        writer.close()
+                    }
+                }
+                println("====== ENDED GrabVer\n")
             }
-            println("====== ENDED GrabVer\n")
         }
     }
 
