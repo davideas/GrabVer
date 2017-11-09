@@ -19,13 +19,13 @@ Automatic Incremental Gradle Versioning</a>. Customized into library with PreRel
 ## Rules
 _major_: User defined value for breaking changes.<br>
 _minor_: User defined value for new features, but backwards compatible.<br>
-_patch_: Auto generated value for backwards compatible bug fixes only.<br>
+_patch_: User defined value (or auto-generated value) for backwards compatible bug fixes only.<br>
 _preRelease_: Optional, user defined value for pre-releases suffix.<br>
 Auto-skip versioning when 'clean', 'test' or 'grabverSkip' tasks are enqueued.
 
 **build** - Increases at each build.<br>
 **code** - Increases at each release.<br>
-**patch** - Increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if _preRelease_ is set.<br>
+**patch** - If not specified by user, increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if _preRelease_ is set.<br>
 **minor** - User defined value, it must be coherent(=0) if you increase _Major_ version.
 
 ## Installation
@@ -55,9 +55,11 @@ Apply the plugin in the _module_ you desire, it will create a properties file un
 apply plugin: 'eu.davidea.grabver'
 
 versioning {
-    // must be numbers
+    // required (number)
     major = 1
     minor = 0
+    // optional (number)
+    patch = 7
     // optional (any string)
     preRelease = 'RC1'
 }

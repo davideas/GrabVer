@@ -21,12 +21,13 @@ class VersioningExtension {
     // Public values from user
     int major
     int minor
+    int patch = -1
     String preRelease
     // Private values from properties
     private String propPreRelease
     private int propMajor
     private int propMinor
-    private int patch
+    private int propPatch
     private int build
     private int code
     // Only GrabVer can access these properties
@@ -41,20 +42,25 @@ class VersioningExtension {
             // Auto-increment Code only in case of release
             if (increment > 0 ) println("INFO - Auto incrementing code version")
             code += increment
-            // Auto-increment Patch if Major or Minor do not differ from user
-            patch += increment
             // Auto reset Patch in case they differ or preRelease is set
             if (major != propMajor || minor != propMinor || isPreRelease()) {
                 if (propMajor != 0 && major > propMajor && minor != 0) {
                     println("ERROR - Expected minor to be 0 if major has increased")
                     throw new IllegalArgumentException("Inconsistent minor value: major has changed but minor is not 0")
                 }
-                if (patch != 0) {
+                if (propMinor != 0 && minor > propMinor && patch > 0) {
+                    println("ERROR - Expected patch to be 0 if minor has increased")
+                    throw new IllegalArgumentException("Inconsistent patch value: minor has changed but patch is not 0")
+                }
+                if (patch < 0) {
                     println("INFO - Auto resetting patch version")
                     patch = 0
                 }
-            } else if (increment > 0 ) {
+            } else if (increment > 0 && patch < 0) {
                 println("INFO - Auto incrementing patch version")
+                // Auto-increment Patch if Major or Minor do not differ from user
+                patch = propPatch
+                patch += increment
             }
             propPreRelease = preRelease
             evaluated = true
@@ -65,8 +71,8 @@ class VersioningExtension {
         // Load current values from properties file
         propMajor = Integer.valueOf(versionProps.getProperty(VersionType.MAJOR.toString(), "0"))
         propMinor = Integer.valueOf(versionProps.getProperty(VersionType.MINOR.toString(), "0"))
+        propPatch = Integer.valueOf(versionProps.getProperty(VersionType.PATCH.toString(), "0"))
         propPreRelease = versionProps.getProperty(VersionType.PRE_RELEASE.toString(), "")
-        patch = Integer.valueOf(versionProps.getProperty(VersionType.PATCH.toString(), "0"))
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
         code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "0"))
         println("INFO - Current versioning: " + toStringCurrent())
@@ -88,7 +94,7 @@ class VersioningExtension {
 
     int getPatch() {
         evaluateVersions()
-        return patch
+        return patch < 0 ? propPatch : patch
     }
 
     int getBuild() {
@@ -106,7 +112,7 @@ class VersioningExtension {
      */
     String getName() {
         evaluateVersions()
-        return (major + "." + minor + "." + patch + (isPreRelease() ? "-" + preRelease : ""))
+        return (major + "." + minor + "." + (patch < 0 ? propPatch : patch) + (isPreRelease() ? "-" + preRelease : ""))
     }
 
     /**
@@ -130,14 +136,14 @@ class VersioningExtension {
     }
 
     String toStringCurrent() {
-        return propMajor + "." + propMinor + "." + patch +
+        return propMajor + "." + propMinor + "." + propPatch +
                 (propPreRelease != null && !propPreRelease.isEmpty() ? "-" + propPreRelease : "") +
                 " #" + build +
                 " code=" + code
     }
 
     String toString() {
-        return major + "." + minor + "." + patch +
+        return major + "." + minor + "." + (patch < 0 ? propPatch : patch) +
                 (isPreRelease() ? "-" + preRelease : "") +
                 " #" + build +
                 " code=" + code
