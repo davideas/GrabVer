@@ -21,29 +21,31 @@ _major_: User defined value for breaking changes.<br>
 _minor_: User defined value for new features, but backwards compatible.<br>
 _patch_: User defined value (or auto-generated value) for backwards compatible bug fixes only.<br>
 _preRelease_: Optional, user defined value for pre-releases suffix.<br>
-Auto-skip versioning when 'clean', 'test' or 'grabverSkip' tasks are enqueued.
+_dependsOn_: Optional, saving versioning file depends by the task-name specified here (default: _compileJava, assembleDebug & assembleRelease_).<br>
 
 **build** - Increases at each build.<br>
 **code** - Increases at each release.<br>
 **patch** - If not specified by user, increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if _preRelease_ is set.<br>
 **minor** - User defined value, it must be coherent(=0) if you increase _Major_ version.
 
+Auto-skip versioning when 'clean', 'test' or 'grabverSkip' tasks are enqueued.
+
 ## Installation
 Configure script dependencies in the project _build.gradle_ file:
 ``` groovy
 buildscript {
     repositories {
-        // Please Use jcenter for dependecies: mavenCentral is not enough
+        // non android project: please use jcenter for dependecies (mavenCentral is not enough):
         jcenter()
-        // and (for now)
+        // but for now(!) until publication is done, please use:
         maven { url "http://dl.bintray.com/davideas/maven" }
-        // or Gradle Plugins Repository
+        // or Gradle Plugins Repository:
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'eu.davidea:grabver:0.6.0'
+        classpath 'eu.davidea:grabver:0.7.0'
         // or with Gradle Plugins Repository
-        classpath "gradle.plugin.eu.davidea:grabver:0.6.0"
+        classpath "gradle.plugin.eu.davidea:grabver:0.7.0"
     }
 }
 ```
@@ -60,6 +62,7 @@ versioning {
     minor = 0
     // optional (number)
     patch = 7
+    dependsOn = "<task-name>"
     // optional (any string)
     preRelease = 'RC1'
 }
