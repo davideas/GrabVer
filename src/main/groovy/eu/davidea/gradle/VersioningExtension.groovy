@@ -23,6 +23,7 @@ class VersioningExtension {
     int minor
     int patch = -1
     String preRelease
+    String dependsOn
     // Private values from properties
     private String propPreRelease
     private int propMajor
@@ -80,6 +81,10 @@ class VersioningExtension {
 
     private isPreRelease() {
         return preRelease != null && !preRelease.trim().empty
+    }
+
+    boolean hasDependingTask() {
+        return dependsOn != null && !dependsOn.isEmpty()
     }
 
     int getMajor() {

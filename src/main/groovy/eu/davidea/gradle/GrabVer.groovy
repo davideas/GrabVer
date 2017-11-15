@@ -22,15 +22,17 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.TaskState
 
 /**
- * Major: User defined breaking changes<br>
- * Minor: User defined new features, but backwards compatible<br>
- * Patch: Auto generated backwards compatible bug fixes only<br>
- * PreRelease: User defined value for versionName
+ * Major: User defined breaking changes.<br>
+ * Minor: User defined new features, but backwards compatible.<br>
+ * Patch: Optional, user defined value or Auto generated backwards compatible bug fixes only.<br>
+ * PreRelease: Optional, user defined value for versionName.<br>
+ * DependsOn: Optional, saving versioning file depends by the task-name specified here
+ * (default: <i>compileJava, assembleDebug & assembleRelease</i>).
  *
- * <p><b>Build</b> - increases at each build<br>
- * <b>Code</b> - increases at each release<br>
- * <b>Patch</b> - increases at each release, but it auto-resets back to 0 when Minor or Major version increments.</p>
- * <p>Inspired from <a href='https://andreborud.com/android-studio-automatic-incremental-gradle-versioning/'>https://andreborud.com/android-studio-automatic-incremental-gradle-versioning</a></p>
+ * <p><b>Build</b> - increases at each build.<br>
+ * <b>Code</b> - increases at each release.<br>
+ * <b>Patch</b> - if not specified, auto-increases at each release, but it auto-resets back to 0 when Minor or Major version increments.</p>
+ * <p>Inspired from <a href='https://andreborud.com/android-studio-automatic-incremental-gradle-versioning/'>https://andreborud.com/android-studio-automatic-incremental-gradle-versioning</a>.</p>
  * Customized into library with Suffix and Auto-Reset features.
  *
  * @since 19/05/2017
@@ -39,7 +41,7 @@ import org.gradle.api.tasks.TaskState
 class GrabVer implements Plugin<Project> {
 
     void apply(Project project) {
-        println("====== STARTED GrabVer v0.6.0")
+        println("====== STARTED GrabVer v0.7.0")
         println("INFO - ProjectName=" + project.name)
 
         project.task('grabverRelease') {
@@ -86,12 +88,14 @@ class GrabVer implements Plugin<Project> {
         }
 
         project.gradle.taskGraph.afterTask { Task task, TaskState state ->
-            if (task.project.name == project.name && (task.name == "compileJava" || task.name == "compileDebugSources")) {
+            if (task.project.name == project.name &&
+                    ((versioning.hasDependingTask() && task.name == versioning.dependsOn) ||
+                            (!versioning.hasDependingTask() && (task.name == "compileJava" || task.name == "assembleDebug" || task.name == "assembleRelease")))) {
                 if (state.failure) {
                     println("ERROR - " + project.name + ":" + task.name + " TaskState failed")
                 } else {
                     println("INFO - " + project.name + ":" + task.name + " TaskState succeeded")
-                    if (!('clean' in runTasks)) {
+                    if (!runTasks.contains("clean") && !runTasks.contains("test") && !runTasks.contains("grabverSkip")) {
                         // Save new values
                         println("INFO - Saving versioning: " + versioning)
                         versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
