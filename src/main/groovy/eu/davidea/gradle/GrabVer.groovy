@@ -79,7 +79,7 @@ class GrabVer implements Plugin<Project> {
             versioning.evaluated = true
         } else {
             // Increment depends on release
-            if (runTasks.contains("grabverRelease") || runTasks.contains(":" + module + ":assembleRelease")) {
+            if (runTasks.contains("bundle") || runTasks.contains("grabverRelease") || runTasks.contains(":" + module + ":assembleRelease")) {
                 println("INFO - Running with 'release' task: 'Code' version will auto increment")
                 versioning.increment = 1
             } else {
