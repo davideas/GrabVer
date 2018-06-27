@@ -39,7 +39,7 @@ ext {
 
     // Library Repository
     libraryName = 'GrabVer'
-    libraryVersion = '0.7.0'
+    libraryVersion = '1.0.0'
     displayName = 'Gradle Automatic Build Versioning Plugin'
     libraryDescription = 'An easy Gradle plugin that follows semver.org rules to automatically generate the Patch version, Build number and Code version, while Major, Minor and Pre-Release suffix remain under our control.'
     libraryLabels = ['semver', 'version', 'versioning', 'build-versioning', 'automatic-versioning', 'intellij-idea', 'android-studio', 'auto-reset']

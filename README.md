@@ -35,17 +35,16 @@ Configure script dependencies in the project _build.gradle_ file:
 ``` groovy
 buildscript {
     repositories {
-        // non android project: please use jcenter for dependecies (mavenCentral is not enough):
-        jcenter()
-        // but for now(!) until publication is done, please use:
+        // Using Bintray repository:
         maven { url "http://dl.bintray.com/davideas/maven" }
-        // or Gradle Plugins Repository:
+        // or Gradle Plugins repository:
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'eu.davidea:grabver:0.7.0'
+        // Using Bintray repository:
+        classpath 'eu.davidea:grabver:1.0.0'
         // or with Gradle Plugins Repository
-        classpath "gradle.plugin.eu.davidea:grabver:0.7.0"
+        classpath "gradle.plugin.eu.davidea:grabver:1.0.0"
     }
 }
 ```
@@ -60,7 +59,7 @@ versioning {
     // required (number)
     major = 1
     minor = 0
-    // optional (number)
+    // force patch, optional (number)
     patch = 7
     dependsOn = "<task-name>"
     // optional (any string)
@@ -85,12 +84,13 @@ versioning.date            // or .getDate([format]) - default "yyyy.mm.dd"
 ### 3. Run it
 - Via command line:
 ```
-// To increase build only:
+// To increase build number only:
 // - Code and Patch remain unchanged
 gradle [build | assembleDebug]
 
 // To increase build, patch and code:
-// - Code and Patch are increased because of release
+// Code and Patch are increased because of release:
+// - Code is increased if exists a task that contains: "bundle", "grabverRelease", ":module:assembleRelease"
 // - But Patch can be resetted if Major or Minor is changed or if preRelease is set
 gradle [grabverRelease | assembleRelease]
 ```
