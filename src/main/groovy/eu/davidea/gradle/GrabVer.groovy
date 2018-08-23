@@ -41,7 +41,7 @@ import org.gradle.api.tasks.TaskState
 class GrabVer implements Plugin<Project> {
 
     void apply(Project project) {
-        println("====== STARTED GrabVer v0.7.0")
+        println("====== STARTED GrabVer v1.0.0")
         println("INFO - ProjectName=" + project.name)
 
         project.task('grabverRelease') {
