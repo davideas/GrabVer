@@ -75,7 +75,7 @@ class VersioningExtension {
         propPatch = Integer.valueOf(versionProps.getProperty(VersionType.PATCH.toString(), "0"))
         propPreRelease = versionProps.getProperty(VersionType.PRE_RELEASE.toString(), "")
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
-        code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "0"))
+        code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "1"))
         println("INFO - Current versioning: " + toStringCurrent())
     }
 
