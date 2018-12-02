@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Davidea Solutions Sprl
+ * Copyright 2017-2019 Davidea Solutions Sprl
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,18 @@ package eu.davidea.gradle
 
 import nu.studer.java.util.OrderedProperties
 
+/**
+ * @author Davide Steduto
+ * @since 19/05/2017
+ */
 class VersioningExtension {
     // Public values from user
     int major
     int minor
     int patch = -1
     String preRelease
+    String saveOn
+    @Deprecated
     String dependsOn
     // Private values from properties
     private String propPreRelease
@@ -41,7 +47,7 @@ class VersioningExtension {
             println("INFO - Auto incrementing build number")
             build++
             // Auto-increment Code only in case of release
-            if (increment > 0 ) println("INFO - Auto incrementing code version")
+            if (increment > 0) println("INFO - Auto incrementing code version")
             code += increment
             // Auto reset Patch in case they differ or preRelease is set
             if (major != propMajor || minor != propMinor || isPreRelease()) {
@@ -76,15 +82,15 @@ class VersioningExtension {
         propPreRelease = versionProps.getProperty(VersionType.PRE_RELEASE.toString(), "")
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
         code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "1"))
-        println("INFO - Current versioning: " + toStringCurrent())
+        println("INFO - Current versioning " + toStringCurrent())
     }
 
     private isPreRelease() {
         return preRelease != null && !preRelease.trim().empty
     }
 
-    boolean hasDependingTask() {
-        return dependsOn != null && !dependsOn.isEmpty()
+    boolean hasSaveTask(String taskName) {
+        return taskName.equalsIgnoreCase(saveOn) || taskName.equalsIgnoreCase(dependsOn)
     }
 
     int getMajor() {

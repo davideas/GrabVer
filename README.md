@@ -21,14 +21,15 @@ _major_: User defined value for breaking changes.<br>
 _minor_: User defined value for new features, but backwards compatible.<br>
 _patch_: User defined value (or auto-generated value) for backwards compatible bug fixes only.<br>
 _preRelease_: Optional, user defined value for pre-releases suffix.<br>
-_dependsOn_: Optional, saving versioning file depends by the task-name specified here (default: _compileJava, assembleDebug & assembleRelease_).<br>
+_saveOn_: Optional, saving versioning file depending by the task-name specified here (default: _compileJava, bundle, assembleDebug & assembleRelease_).<br>
+_~~dependsOn~~_ (use _saveOn_).<br>
 
 **build** - Increases at each build.<br>
 **code** - Increases at each release.<br>
 **patch** - If not specified by user, increases at each release, but it auto resets back to 0 when _Minor_ or _Major_ version changes or if _preRelease_ is set.<br>
 **minor** - User defined value, it must be coherent(=0) if you increase _Major_ version.
 
-Auto-skip versioning when 'clean', 'test' or 'grabverSkip' tasks are enqueued.
+Auto-skip versioning when 'clean', 'test' or 'grabverSkip' tasks are enqueued in command line.
 
 ## Installation
 Configure script dependencies in the project _build.gradle_ file:
@@ -42,9 +43,9 @@ buildscript {
     }
     dependencies {
         // Using Bintray repository:
-        classpath 'eu.davidea:grabver:1.0.0'
+        classpath 'eu.davidea:grabver:1.0.1'
         // or with Gradle Plugins Repository
-        classpath "gradle.plugin.eu.davidea:grabver:1.0.0"
+        classpath "gradle.plugin.eu.davidea:grabver:1.0.1"
     }
 }
 ```
@@ -57,13 +58,14 @@ apply plugin: 'eu.davidea.grabver'
 
 versioning {
     // required (number)
-    major = 1
-    minor = 0
-    // force patch, optional (number)
-    patch = 7
-    dependsOn = "<task-name>"
+    major 1
+    minor 0
+    // optional, force custom patch (number)
+    patch 7
     // optional (any string)
-    preRelease = 'RC1'
+    preRelease "RC1"
+    // optional, save new versioning on file on specified <task-name>
+    saveOn "<task-name>"
 }
 ```
 
@@ -89,7 +91,7 @@ versioning.date            // or .getDate([format]) - default "yyyy.mm.dd"
 gradle [build | assembleDebug]
 
 // To increase build, patch and code:
-// Code and Patch are increased because of release:
+// Code and Patch are increased because of releases:
 // - Code is increased if exists a task that contains: "bundle", "grabverRelease", ":module:assembleRelease"
 // - But Patch can be resetted if Major or Minor is changed or if preRelease is set
 gradle [grabverRelease | assembleRelease]
@@ -99,18 +101,18 @@ gradle [grabverRelease | assembleRelease]
   - by _running the App_ (assembleDebug | assembleRelease, depending by the build variant).
 
 **Note:** File `version.properties` is auto-generated, but once it's created, you can modify its content
-as of your convenience. Just remember to add it to your Version Control System.
+as of your convenience. Just remember to add it to your Version Control System (from time to time).
 
 # Contributions
 Everybody is welcome to improve existing solution.
 
 **Note:** Unit tests work fine if you open the project with IntelliJ Idea, while with Android Studio
 they don't. Alternatively, you can simulate a real build script by running `gradle install`
-and `gradle --build-file build-test.gradle [grabverRelease]` OR testing with modules `gradle build [grabverRelease]`.
+and `gradle -b build-test.gradle [grabverRelease]` OR testing with modules `gradle build [grabverRelease]`.
 
 # License
 
-    Copyright 2017 Davidea Solutions Sprl
+    Copyright 2017-2019 Davidea Solutions Sprl
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

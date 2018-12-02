@@ -6,7 +6,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'eu.davidea:grabver:0.7.0'
+        classpath 'eu.davidea:grabver:1.0.1'
     }
 }
 
