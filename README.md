@@ -42,10 +42,8 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        // Using Bintray repository:
-        classpath 'eu.davidea:grabver:1.0.1'
-        // or with Gradle Plugins Repository
-        classpath "gradle.plugin.eu.davidea:grabver:1.0.1"
+        // Using Bintray or Gradle Plugins repository
+        classpath "eu.davidea:grabver:1.0.1"
     }
 }
 ```
