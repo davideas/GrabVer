@@ -18,14 +18,31 @@ buildscript {
     }
     //noinspection GroovyAssignabilityCheck
     dependencies {
-        classpath 'eu.davidea:grabver:1.0.1'
+        classpath 'eu.davidea:grabver:2.0.0'
     }
 }
 
 versioning {
     major 1
     minor 2
+    preRelease "RC2"
+    incrementOn "jar"
+    saveOn "jar"
 }
-println("TEST - VersionCode: " + versioning.code)
-println("TEST - VersionName: " + versioning.name)
-println("TEST - FullVersionName: " + versioning.fullVersionName)
+println("TEST - VersionCode: ${versioning.code}")
+println("TEST - VersionName: ${versioning.name}")
+println("TEST - FullName: ${versioning.fullName}")
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation 'nu.studer:java-ordered-properties:1.0.1'
+
+    testImplementation gradleTestKit()
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+}

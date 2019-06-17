@@ -3,14 +3,14 @@ package eu.davidea.gradle
 import nu.studer.java.util.OrderedProperties
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert
-
 /**
  * @author Davide Steduto
  * @since 19/05/2017
  */
+@SuppressWarnings(["GroovyAssignabilityCheck"])
 class GrabVerTest {
 
     private Project project
@@ -23,10 +23,8 @@ class GrabVerTest {
     }
 
     @Test
-    void testAutoIncrement_Skip_Versioning() throws Exception {
-        List tasks = new ArrayList<>()
-        tasks.add("grabverSkip")
-        tasks.add("grabverRelease")
+    void testEmptyRunTasks_Skip_Versioning() throws Exception {
+        List<String> tasks = new ArrayList<>()
         project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
@@ -42,9 +40,46 @@ class GrabVerTest {
     }
 
     @Test
+    void testClean_Skip_Versioning() throws Exception {
+        List<String> tasks = new ArrayList<>()
+        tasks.add("clean")
+        project.gradle.startParameter.setTaskNames(tasks)
+        project.pluginManager.apply PLUGIN_ID
+        project.versioning {
+            major = 1
+            minor = 1
+        }
+        printResults("[Skip]")
+        Assert.assertEquals("major check", 1, project.versioning.major)
+        Assert.assertEquals("minor check", 1, project.versioning.minor)
+        Assert.assertEquals("patch check", 1, project.versioning.patch)
+        Assert.assertEquals("build check", 20, project.versioning.build)
+        Assert.assertEquals("code check", 3, project.versioning.code)
+    }
+
+    @Test
+    void testCleanBuild_NoRelease() throws Exception {
+        List<String> tasks = new ArrayList<>()
+        tasks.add("clean")
+        tasks.add("build")
+        project.gradle.startParameter.setTaskNames(tasks)
+        project.pluginManager.apply PLUGIN_ID
+        project.versioning {
+            major = 1
+            minor = 1
+        }
+        printResults("[Skip]")
+        Assert.assertEquals("major check", 1, project.versioning.major)
+        Assert.assertEquals("minor check", 1, project.versioning.minor)
+        Assert.assertEquals("patch check", 1, project.versioning.patch)
+        Assert.assertEquals("build check", 21, project.versioning.build)
+        Assert.assertEquals("code check", 3, project.versioning.code)
+    }
+
+    @Test
     void testAutoIncrement_Release_MajorVersionChange() throws Exception {
-        List tasks = new ArrayList<>()
-        tasks.add("grabverRelease")
+        List<String> tasks = new ArrayList<>()
+        tasks.add("bundleRelease")
         project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
@@ -61,8 +96,8 @@ class GrabVerTest {
 
     @Test
     void testAutoIncrement_Release_MinorVersionChange() throws Exception {
-        List tasks = new ArrayList<>()
-        tasks.add("grabverRelease")
+        List<String> tasks = new ArrayList<>()
+        tasks.add("assembleRelease")
         project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
@@ -80,7 +115,7 @@ class GrabVerTest {
 
     @Test
     void testAutoIncrement_Release_PatchVersionChange() throws Exception {
-        List tasks = new ArrayList<>()
+        List<String> tasks = new ArrayList<>()
         tasks.add("grabverRelease")
         project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
@@ -97,7 +132,49 @@ class GrabVerTest {
     }
 
     @Test
+    void testManual_NoRelease_saveOn() throws Exception {
+        List<String> tasks = new ArrayList<>()
+        tasks.add("clean")
+        project.gradle.startParameter.setTaskNames(tasks)
+        project.pluginManager.apply PLUGIN_ID
+        project.versioning {
+            major = 1
+            minor = 1
+            saveOn = "clean"
+        }
+        printResults("[Skip]")
+        Assert.assertEquals("major check", 1, project.versioning.major)
+        Assert.assertEquals("minor check", 1, project.versioning.minor)
+        Assert.assertEquals("patch check", 1, project.versioning.patch)
+        Assert.assertEquals("build check", 21, project.versioning.build)
+        Assert.assertEquals("code check", 3, project.versioning.code)
+    }
+
+    @Test
+    void testManualIncrement_Release_incrementOn() throws Exception {
+        List<String> tasks = new ArrayList<>()
+        tasks.add("clean")
+        project.gradle.startParameter.setTaskNames(tasks)
+        project.pluginManager.apply PLUGIN_ID
+        project.versioning {
+            major = 1
+            minor = 1
+            saveOn = "clean"
+            incrementOn = "clean"
+        }
+        printResults("[Release + NoVersionChange]")
+        Assert.assertEquals("major check", 1, project.versioning.major)
+        Assert.assertEquals("minor check", 1, project.versioning.minor)
+        Assert.assertEquals("patch check", 2, project.versioning.patch)
+        Assert.assertEquals("build check", 21, project.versioning.build)
+        Assert.assertEquals("code check", 4, project.versioning.code)
+    }
+
+    @Test
     void testAutoIncrement_NoRelease_CustomPatchVersionChange() throws Exception {
+        List<String> tasks = new ArrayList<>()
+        tasks.add("build")
+        project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
             major = 1
@@ -114,6 +191,9 @@ class GrabVerTest {
 
     @Test
     void testAutoIncrement_NoRelease_MinorVersionChange() throws Exception {
+        List<String> tasks = new ArrayList<>()
+        tasks.add("assembleDebug")
+        project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
             major = 1
@@ -129,6 +209,9 @@ class GrabVerTest {
 
     @Test(expected = IllegalArgumentException)
     void testAutoIncrement_NoRelease_MinorVersionWrong() throws Exception {
+        List<String> tasks = new ArrayList<>()
+        tasks.add("assembleDebug")
+        project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
             major = 2
@@ -139,6 +222,9 @@ class GrabVerTest {
 
     @Test(expected = IllegalArgumentException)
     void testAutoIncrement_NoRelease_PatchVersionWrong() throws Exception {
+        List<String> tasks = new ArrayList<>()
+        tasks.add("assembleDebug")
+        project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
             major = 1
@@ -149,7 +235,10 @@ class GrabVerTest {
     }
 
     @Test
-    void testAutoIncrement_NoRelease_Suffix() throws Exception {
+    void testAutoIncrement_NoRelease_PreRelease() throws Exception {
+        List<String> tasks = new ArrayList<>()
+        tasks.add("war")
+        project.gradle.startParameter.setTaskNames(tasks)
         project.pluginManager.apply PLUGIN_ID
         project.versioning {
             major = 1
@@ -172,7 +261,7 @@ class GrabVerTest {
         println("TEST - " + title)
         println("TEST - code=$project.versioning.code")
         println("TEST - name=$project.versioning.name")
-        println("TEST - fullVersionName: $project.versioning.fullVersionName")
+        println("TEST - fullName: $project.versioning.fullName")
         println("TEST - New versioning: $project.versioning")
     }
 
@@ -184,7 +273,7 @@ class GrabVerTest {
         versionProps.load(fis)
         fis.close()
 
-        println("====== Auto-generating content properties for test")
+        println("> Auto-generating content properties for test")
         versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(major))
         versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(minor))
         versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(patch))

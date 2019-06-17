@@ -17,19 +17,21 @@ package eu.davidea.gradle
 
 import nu.studer.java.util.OrderedProperties
 
+import static eu.davidea.gradle.ConsoleColors.*
+
 /**
  * @author Davide Steduto
  * @since 19/05/2017
  */
+@SuppressWarnings("GroovyAssignabilityCheck")
 class VersioningExtension {
     // Public values from user
-    int major
+    int major = 1
     int minor
     int patch = -1
     String preRelease
+    String incrementOn
     String saveOn
-    @Deprecated
-    String dependsOn
     // Private values from properties
     private String propPreRelease
     private int propMajor
@@ -39,98 +41,110 @@ class VersioningExtension {
     private int code
     // Only GrabVer can access these properties
     protected boolean evaluated = false
-    protected int increment = 0
+    protected boolean isRelease = false
+    // Plugin reference
+    protected GrabVer grabver
 
-    private void evaluateVersions() {
+    protected void evaluateVersion() {
+        // Evaluate once new version
         if (!evaluated) {
-            // Always auto-increment Build
-            println("INFO - Auto incrementing build number")
-            build++
-            // Auto-increment Code only in case of release
-            if (increment > 0) println("INFO - Auto incrementing code version")
-            code += increment
+            evaluated = true
+            // Read once user extension configuration
+            if (!grabver.readUserConfiguration()) {
+                return
+            }
+            String version = "version: ${bold("${major}.${minor}${patch < 0 ? "" : ".${patch}"}${isPreRelease() ? "-${preRelease}" : ""}")}"
+            String tasks = (incrementOn != null ? ", incrementOn: ${bold(incrementOn)}" : "") + (saveOn != null ? ", saveOn: ${bold(saveOn)}" : "")
+            println("INFO - Evaluating user values: {${version}${tasks}}")
             // Auto reset Patch in case they differ or preRelease is set
             if (major != propMajor || minor != propMinor || isPreRelease()) {
-                if (propMajor != 0 && major > propMajor && minor != 0) {
-                    println("ERROR - Expected minor to be 0 if major has increased")
+                if (!grabver.isFirstRun && propMajor != 0 && major > propMajor && minor != 0) {
+                    println(styler(RED, "ERROR - Expected minor to be 0 if major has increased"))
                     throw new IllegalArgumentException("Inconsistent minor value: major has changed but minor is not 0")
                 }
-                if (propMinor != 0 && minor > propMinor && patch > 0) {
-                    println("ERROR - Expected patch to be 0 if minor has increased")
+                if (!grabver.isFirstRun && propMinor != 0 && minor > propMinor && patch > 0) {
+                    println(styler(RED, "ERROR - Expected patch to be 0 if minor has increased"))
                     throw new IllegalArgumentException("Inconsistent patch value: minor has changed but patch is not 0")
                 }
                 if (patch < 0) {
                     println("INFO - Auto resetting patch version")
                     patch = 0
                 }
-            } else if (increment > 0 && patch < 0) {
+            } else if (isRelease && patch < 0) {
                 println("INFO - Auto incrementing patch version")
                 // Auto-increment Patch if Major or Minor do not differ from user
-                patch = propPatch
-                patch += increment
+                patch = propPatch + 1
+            }
+            // Always auto-increment build number
+            println("INFO - Auto incrementing build number")
+            build++
+            // Auto-increment Code only in case of release
+            if (isRelease) {
+                println("INFO - Auto incrementing code version")
+                code += 1
             }
             propPreRelease = preRelease
-            evaluated = true
+            println("INFO - Evaluation complete!")
         }
     }
 
-    protected void loadVersions(OrderedProperties versionProps) {
+    protected void loadProperties(OrderedProperties versionProps, boolean silent) {
         // Load current values from properties file
-        propMajor = Integer.valueOf(versionProps.getProperty(VersionType.MAJOR.toString(), "0"))
+        propMajor = Integer.valueOf(versionProps.getProperty(VersionType.MAJOR.toString(), "1"))
         propMinor = Integer.valueOf(versionProps.getProperty(VersionType.MINOR.toString(), "0"))
         propPatch = Integer.valueOf(versionProps.getProperty(VersionType.PATCH.toString(), "0"))
         propPreRelease = versionProps.getProperty(VersionType.PRE_RELEASE.toString(), "")
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
         code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "1"))
-        println("INFO - Current versioning " + toStringCurrent())
+        if (!silent) {
+            println("INFO - Current versioning: " + bold(toStringCurrent()))
+        }
     }
 
     private isPreRelease() {
         return preRelease != null && !preRelease.trim().empty
     }
 
-    boolean hasSaveTask(String taskName) {
-        return taskName.equalsIgnoreCase(saveOn) || taskName.equalsIgnoreCase(dependsOn)
-    }
-
     int getMajor() {
+        evaluateVersion()
         // Keep user value
         return major
     }
 
     int getMinor() {
+        evaluateVersion()
         // Keep user value
         return minor
     }
 
     int getPatch() {
-        evaluateVersions()
+        evaluateVersion()
         return patch < 0 ? propPatch : patch
     }
 
     int getBuild() {
-        evaluateVersions()
+        evaluateVersion()
         return build
     }
 
     int getCode() {
-        evaluateVersions()
+        evaluateVersion()
         return code
     }
 
     /**
-     * @return will output {@code major.minor.patch[-preRelease]}
+     * @return "<code>major.minor.patch[-preRelease]</code>"
      */
     String getName() {
-        evaluateVersions()
+        evaluateVersion()
         return (major + "." + minor + "." + (patch < 0 ? propPatch : patch) + (isPreRelease() ? "-" + preRelease : ""))
     }
 
     /**
-     * @return will output {@code major.minor.patch[-preRelease] #build built on date}
+     * @return "<code>major.minor.patch[-preRelease] #build built on date</code>"
      */
-    String getFullVersionName() {
-        return (getName() + " #" + build + getBuiltOn())
+    String getFullName() {
+        return getName() + " #" + build + getBuiltOn()
     }
 
     static String getBuiltOn() {

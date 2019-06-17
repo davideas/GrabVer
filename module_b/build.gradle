@@ -6,7 +6,7 @@ buildscript {
         mavenLocal()
     }
     dependencies {
-        classpath 'eu.davidea:grabver:1.0.1'
+        classpath 'eu.davidea:grabver:2.0.0'
     }
 }
 
@@ -14,7 +14,6 @@ versioning {
     major 2
     minor 2
 }
-println("MODULE_B - VersionCode: " + versioning.code)
-println("MODULE_B - VersionName: " + versioning.name)
-println("MODULE_B - FullVersionName: " + versioning.fullVersionName)
-
+println("MODULE_B - VersionCode: ${versioning.code}")
+println("MODULE_B - VersionName: ${versioning.name}")
+println("MODULE_B - FullName: ${versioning.fullName}")

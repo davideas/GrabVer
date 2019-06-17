@@ -16,143 +16,228 @@
 package eu.davidea.gradle
 
 import nu.studer.java.util.OrderedProperties
+import org.gradle.BuildResult
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.tasks.TaskState
+
+import static eu.davidea.gradle.ConsoleColors.*
 
 /**
- * major: User defined breaking changes.<br>
- * minor: User defined new features, but backwards compatible.<br>
- * patch: Optional, user defined value or Auto generated backwards compatible bug fixes only.<br>
- * preRelease: Optional, user defined value for versionName.<br>
- * saveOn: Optional, saving versioning file depends by the task-name specified here
- * (default: <i>compileJava, assembleDebug & assembleRelease</i>).
+ * <u>User values</u>:<br>
+ * <b>major</b>: User defined breaking changes.<br>
+ * <b>minor</b>: User defined new features, but backwards compatible.<br>
+ * <b>patch</b>: Optional, user defined value or Auto generated backwards compatible bug fixes only.<br>
+ * <b>preRelease</b>: Optional, user defined value for versionName.<br>
+ * <b>incrementOn</b>: Optional, custom task name to trigger the increase of the version
+ * (default: <code>assembleRelease, bundleRelease, grabverRelease</code>).<br>
+ * <b>saveOn</b>: Optional, custom task name for which you want to save the versioning file
+ * (default: <code>build, assembleDebug, assembleRelease, bundleDebug, bundleRelease, grabverRelease, jar,
+ * war, explodedWar</code>).
  *
+ * <br><br><u>Calculation</u>:
  * <p><b>build</b> - increases at each build.<br>
  * <b>code</b> - increases at each release.<br>
- * <b>patch</b> - if not specified, auto-increases at each release, but it auto-resets back to 0 when Minor or Major version increments.</p>
- * <p>Inspired from <a href='https://andreborud.com/android-studio-automatic-incremental-gradle-versioning/'>https://andreborud.com/android-studio-automatic-incremental-gradle-versioning</a>.</p>
- * Customized into library with Suffix and Auto-Reset features.
+ * <b>patch</b> - if not specified, auto-increases at each release, but it auto-resets back to 0 when Minor or Major
+ * version increments or if PreRelease is set.</p>
+ * <br>Inspired from <a href='https://andreborud.com/android-studio-automatic-incremental-gradle-versioning/'>https://andreborud.com/android-studio-automatic-incremental-gradle-versioning</a>
+ * <br>Customized into library with Suffix and Auto-Reset features.
+ * <br><br>
  *
  * @author Davide Steduto
  * @since 19/05/2017
  */
 class GrabVer implements Plugin<Project> {
 
-    private static String[] RELEASE_TASKS = ["bundle", "grabverRelease"]
-    private static String[] SKIP_TASKS = ["test", "clean", "grabverSkip"]
-    private static String[] SAVE_TASKS = ["compileJava", "bundle", "assembleDebug", "assembleRelease"]
+    private static String GRABVER_VERSION = "2.0.0"
+    private static String[] RELEASE_TASKS = ["assembleRelease", "bundleRelease", "grabverRelease"]
+    private static String[] SAVE_TASKS = ["build", "assembleDebug", "assembleRelease", "bundleDebug", "bundleRelease", "grabverRelease", "jar", "war", "explodedWar"]
+
+    // Extension reference
+    private VersioningExtension versioning
+    // Internal references
+    private Project project
+    private File versionFile
+    private OrderedProperties versionProps
+    protected boolean isFirstRun = false
 
     void apply(Project project) {
-        println("====== STARTED GrabVer v1.0.1")
-        println("INFO - ProjectName '" + project.name + "'")
-
         project.task('grabverRelease') {
-            // Dummy task to trigger release versioning (also used in unit test)
-        }
-        project.task('grabverSkip') {
-            // Dummy task to skip versioning (also used in unit test)
+            // Dummy task to force trigger release versioning (also used in unit test)
         }
 
         // Create new empty versioning instance
-        VersioningExtension versioning = project.extensions.create("versioning", VersioningExtension)
+        this.versioning = project.extensions.create("versioning", VersioningExtension)
+        this.versioning.grabver = this
+        this.project = project
 
-        // Module versioning
-        String module = project.name
-        String filename = 'version.properties'
-        if (!project.rootProject.name.equalsIgnoreCase(module)) {
-            println("INFO - Versioning module '" + module + "'")
-            filename = module + File.separator + filename
-        } else {
-            println("INFO - Versioning root project '" + module + "'")
-        }
-        filename = project.rootDir.toString() + File.separator + filename
-        println("INFO - Versioning filename '" + filename + "'")
-
-        // Load properties file
-        File versionFile = getFile(filename)
-        OrderedProperties versionProps = loadProperties(project, versionFile)
-
-        // Check runTasks
-        List<String> runTasks = project.gradle.startParameter.taskNames
-        println("INFO - runTasks=" + runTasks)
-
-        if (shouldSkip(runTasks)) {
-            println("INFO - Skipping on tasks=" + SKIP_TASKS)
-            versioning.evaluated = true
-        } else if (shouldIncrement(runTasks, module)) {
-            // Increment depends on releases
-            println("INFO - Running with release build => 'Code' version will auto increment")
-            versioning.increment = 1
-        } else {
-            println("INFO - Running with normal build => 'Code' version unchanged")
-        }
-
-        project.gradle.taskGraph.afterTask { Task task, TaskState state ->
-            if (task.project.name == project.name && (versioning.hasSaveTask(task.name) || hasDefaultSaveTask(task.name))) {
-                if (state.failure) {
-                    println("ERROR - " + project.name + ":" + task.name + " TaskState failed")
-                } else {
-                    println("INFO - " + project.name + ":" + task.name + " TaskState succeeded")
-                    if (!shouldSkip(runTasks)) {
-                        // Save new values
-                        println("INFO - Saving versioning " + versioning)
-                        versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
-                        versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(versioning.minor))
-                        versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(versioning.patch))
-                        versionProps.setProperty(VersionType.PRE_RELEASE.toString(), versioning.preRelease != null ? versioning.preRelease : "")
-                        versionProps.setProperty(VersionType.BUILD.toString(), String.valueOf(versioning.build))
-                        versionProps.setProperty(VersionType.CODE.toString(), String.valueOf(versioning.code))
-                        Writer writer = versionFile.newWriter()
-                        versionProps.store(writer, null)
-                        writer.close()
-                    }
+        // Evaluate success state on monitored tasks
+        Set<Task> succeededTasks = new HashSet<>()
+        project.gradle.taskGraph.afterTask { Task task ->
+            if ((task.project.name == project.rootProject.name || task.project.name == project.name) &&
+                    (task.name == versioning.saveOn || SAVE_TASKS.contains(task.name))) {
+                if (task.state.failure) {
+                    println("ERROR - ${project.name}:${task.name} ${styler(RED, 'FAILED')}")
+                } else if (!succeededTasks.contains(task)) {
+                    succeededTasks.add(task)
                 }
-                println("====== ENDED GrabVer\n")
+            }
+        }
+
+        // Gradle build complete
+        project.gradle.buildFinished() { BuildResult result ->
+            println("") // Print empty line
+            if (isFirstRun || !succeededTasks.isEmpty()) {
+                println(bold("> Module: ${project.name}"))
+                for (Task task in succeededTasks) {
+                    String state = task.state.skipMessage != null
+                            ? styler(YELLOW, task.state.skipMessage)
+                            : styler(GREEN, 'EXECUTED')
+                    println("Task: ${task.name} ${state}")
+                }
+                // Save new versioning
+                saveFile()
+            } else if (result.failure != null) {
+                println(styler(RED, project.name.toUpperCase() + ' - ' + result.failure.getLocalizedMessage()))
             }
         }
     }
 
-    private static boolean shouldSkip(List<String> runTasks) {
-        for (String task : SKIP_TASKS) {
-            if (runTasks.contains(task)) return true
+    /**
+     * This plugin needs configuration evaluation done during the Gradle project evaluation
+     * and before it completes.
+     * This plugin works without specifying any custom task, but because Gradle provides only one way
+     * to read the user values (at afterEvaluation time), it is too late for this plugin to wait such event.
+     * <p>To overcome at this "issue", this function is being called at the first extension invocation
+     * (user must grab one of the extension attribute).</p>
+     *
+     * @return true to allow the saving, false to deactivate the plugin in silent mode.
+     */
+    protected boolean readUserConfiguration() {
+        List<String> runTasks = project.gradle.startParameter.taskNames
+
+        // Silent evaluation looking for activation/save tasks
+        if (!shouldSave(runTasks, project.name, versioning.saveOn)) {
+            runTasks.isEmpty()
+                    ? println(styler(YELLOW, "> GrabVer - No RunTask specified. Is Gradle syncing?"))
+                    : println(styler(YELLOW, "> GrabVer - No save task detected"))
+            // Load existing properties file to provide last values
+            loadProperties(true)
+            return isFirstRun
         }
-        return false
+
+        // Silent evaluation done. If passes, at least one save task was detected.
+        // Plugin info
+        String rootProject = project.rootProject.name
+        println(bold("> Plugin GrabVer v${GRABVER_VERSION}"))
+        println("INFO - Root project ${rootProject}")
+
+        // Load existing properties file
+        loadProperties(false)
+        // Display extra info
+        println("INFO - runTasks=" + runTasks)
+        println("INFO - Save task detected") // Real detection was done in silent mode
+
+        // Patch and Code increment depending on release task
+        if (isRelease(runTasks, project.name, versioning)) {
+            versioning.isRelease = true
+            println("INFO - ${styler(BLUE, "Release")} build detected => 'Code' version will auto increment")
+        } else {
+            println("INFO - Running ${styler(BLUE, "normal")} build => 'Code' version remains unchanged")
+        }
+        return true
     }
 
-    private static boolean shouldIncrement(List<String> runTasks, String module) {
-        for (String task : RELEASE_TASKS) {
-            if (runTasks.contains(task)) return true
-        }
-        if (runTasks.contains(":" + module + ":assembleRelease")) {
-            return true
-        }
-        return false
-    }
-
-    private static boolean hasDefaultSaveTask(String taskName) {
-        return SAVE_TASKS.contains(taskName)
-    }
-
-    private static File getFile(String fileName) {
-        File versionFile = new File(fileName)
-        if (!versionFile.canRead()) {
-            println("WARN - Could not find properties file '" + fileName + "'")
-            println("WARN - Auto-generating content properties with default values!")
-            versionFile.createNewFile()
-        }
-        return versionFile
-    }
-
-    private static OrderedProperties loadProperties(Project project, File versionFile) {
+    /**
+     * Loads current values from properties file.
+     */
+    private void loadProperties(boolean silent) {
+        this.versionFile = this.getFile(silent)
+        this.versionProps = new OrderedProperties()
         FileInputStream fis = new FileInputStream(versionFile)
-        OrderedProperties versionProps = new OrderedProperties()
         versionProps.load(fis)
-        project.versioning.loadVersions(versionProps)
+        versioning.loadProperties(versionProps, silent)
         fis.close()
+    }
 
-        return versionProps
+    private File getFile(boolean silent) {
+        String rootProject = this.project.rootProject.name
+        String module = project.name
+        String filename = 'version.properties'
+
+        // Root or Module versioning
+        if (rootProject == module) {
+            if (!silent) {
+                println("INFO - Versioning root project ${module}")
+            }
+        } else {
+            if (!silent) {
+                println("INFO - Versioning module ${module}")
+            }
+            filename = module + File.separator + filename
+        }
+        filename = project.rootDir.toString() + File.separator + filename
+
+        File file = new File(filename)
+        if (!file.canRead()) {
+            this.isFirstRun = true
+            println(styler(YELLOW, "WARN - Could not find properties file ${filename}"))
+            println(styler(YELLOW, "WARN - Creating new properties file!"))
+            file.createNewFile()
+        } else if (!silent) {
+            println("INFO - Versioning file ${filename}")
+        }
+        return file
+    }
+
+    /**
+     * Saves new values to properties file.
+     */
+    private void saveFile() {
+        versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
+        versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(versioning.minor))
+        versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(versioning.patch))
+        versionProps.setProperty(VersionType.PRE_RELEASE.toString(), versioning.preRelease != null ? versioning.preRelease : "")
+        versionProps.setProperty(VersionType.BUILD.toString(), String.valueOf(versioning.build))
+        versionProps.setProperty(VersionType.CODE.toString(), String.valueOf(versioning.code))
+        Writer writer = versionFile.newWriter()
+        versionProps.store(writer, null)
+        writer.close()
+        println("Saved version: ${bold(versioning.toString())}")
+    }
+
+    private static boolean shouldSave(List<String> runTasks, String project, String saveOn) {
+        for (String task in runTasks) {
+            String androidProject = getAndroidProject(task, project)
+            task = getAndroidTask(task)
+            if (project == androidProject && (task == saveOn || SAVE_TASKS.contains(task))) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private static boolean isRelease(List<String> runTasks, String project, VersioningExtension versioning) {
+        for (String task in runTasks) {
+            String androidProject = getAndroidProject(task, project)
+            task = getAndroidTask(task)
+            if (project == androidProject && (
+                    task.equalsIgnoreCase(versioning.incrementOn) || RELEASE_TASKS.contains(task))) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private static String getAndroidProject(String task, String project) {
+        int firstIndex = task.indexOf(":")
+        int lastIndex = task.lastIndexOf(":")
+        return (firstIndex >= 0 && lastIndex > 0) ? task.substring(firstIndex + 1, lastIndex) : project
+    }
+
+    private static String getAndroidTask(String task) {
+        int lastIndex = task.lastIndexOf(":")
+        return (lastIndex > 0) ? task.substring(lastIndex + 1) : task
     }
 
 }

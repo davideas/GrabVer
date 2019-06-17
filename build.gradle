@@ -6,15 +6,15 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.9.7'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'com.gradle.publish:plugin-publish-plugin:0.10.1'
     }
 }
 
-apply plugin: 'com.gradle.plugin-publish'
 apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'com.gradle.plugin-publish'
 
 repositories {
     jcenter()
@@ -22,13 +22,13 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile gradleApi()
-    compile localGroovy()
-    compile 'nu.studer:java-ordered-properties:1.0.1'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation 'nu.studer:java-ordered-properties:1.0.1'
 
-    testCompile gradleTestKit()
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation gradleTestKit()
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 ext {
@@ -39,7 +39,7 @@ ext {
 
     // Library Repository
     libraryName = 'GrabVer'
-    libraryVersion = '1.0.1'
+    libraryVersion = '2.0.0'
     displayName = 'Gradle Automatic Build Versioning Plugin'
     libraryDescription = 'An easy Gradle plugin that follows semver.org rules to automatically generate the Patch version, Build number and Code version, while Major, Minor and Pre-Release suffix remain under our control.'
     libraryLabels = ['semver', 'version', 'versioning', 'build-versioning', 'automatic-versioning', 'intellij-idea', 'android-studio', 'auto-reset']
@@ -74,9 +74,9 @@ pluginBundle {
     }
 
     mavenCoordinates {
-        groupId = project.publishedGroupId
-        artifactId = project.bintrayName
-        version = project.libraryVersion
+        groupId = publishedGroupId
+        artifactId = bintrayName
+        version = libraryVersion
     }
 }
 
