@@ -43,10 +43,8 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        // Using Bintray repository:
-        classpath 'eu.davidea:grabver:2.0.0'
-        // or with Gradle plugins repository
-        classpath "gradle.plugin.eu.davidea:grabver:2.0.0"
+        // Using Bintray or Gradle Plugins repository
+        classpath "eu.davidea:grabver:2.0.0"
     }
 }
 ```
@@ -69,7 +67,7 @@ versioning {
     // Optional (any string)
     preRelease "RC1"
     // Optional, custom task name to trigger the increase of the version
-    increaseOn [or incrementOn] "<task-name>"
+    incrementOn "<task-name>"
     // Optional, custom task name for which you want to save the versioning file
     saveOn "<task-name>"
 }
