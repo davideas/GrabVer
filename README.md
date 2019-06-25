@@ -16,7 +16,7 @@ only 2 variables.
 Inspired from <a href='https://andreborud.com/android-studio-automatic-incremental-gradle-versioning/'>Android Studio
 Automatic Incremental Gradle Versioning</a>. Customized into library with PreRelease, Auto-Reset and Sub-Modules features.</p>
 
-> Easy to apply, it _works with **any** project type with sub modules too._
+> :speech_balloon: Easy to apply, it _works with **any** project type with sub modules too._
 
 ## Rules
 ###### User values
@@ -44,18 +44,18 @@ buildscript {
     }
     dependencies {
         // Using Bintray or Gradle Plugins repository
-        classpath "eu.davidea:grabver:2.0.0"
+        classpath "eu.davidea:grabver:2.0.1"
     }
 }
 ```
 
 ## Usage
 ### 1. Version configuration
-Apply the plugin in the _module_ you desire, it will create a properties file under that module!
+Apply the plugin in the _module_ you desire, it will create a `version.properties` file under that module!
 ``` gradle
 plugins {
     ...
-    id: 'eu.davidea.grabver'
+    id 'eu.davidea.grabver'
 }
 
 versioning {
@@ -72,6 +72,8 @@ versioning {
     saveOn "<task-name>"
 }
 ```
+> :speech_balloon: **Note:** The file `version.properties` is auto-generated, but once it's created, you can modify its content
+as of your convenience. Just remember to add it to your Version Control System (from time to time).
 
 ### 2. Grab your new version
 ``` gradle 
@@ -82,11 +84,14 @@ versioning.build
 versioning.preRelease
 versioning.code        // needed for all Android projects
 versioning.name        // output: "major.minor.patch[-preRelease]"
-versioning.fullName    // output: "major.minor.patch[-preRelease] #build built on yyyy.mm.dd"
-versioning.builtOn     // output: " built on yyyy.mm.dd"
-versioning.date        // or versioning.getDate([format]) - default "yyyy.mm.dd"
+versioning.fullName    // output: "major.minor.patch[-preRelease] #buildNr built on yyyy.MM.dd"
+versioning.builtOn     // output: " built on yyyy.MM.dd"
+versioning.date        // or versioning.getDate([format]) - default "yyyy.MM.dd"
+
+// Example: grab the version name
+version = versioning.name
 ```
-> **Note:** To trigger the evaluation, the user must grab one of the above attribute.
+> :warning: **Note:** To trigger the evaluation, user must grab one of the above attribute!
 
 ### 3. Run it
 - Via command line:
@@ -125,13 +130,10 @@ tasks out there will not trigger the versioning evaluation. Example:
 |`gradle clean build`|Evaluation triggered and new values saved|
 |`gradle clean war grabverRelease`|Evaluation triggered, versioning increased and new values saved|
 
-> **Note:** File `version.properties` is auto-generated, but once it's created, you can modify its content
-as of your convenience. Just remember to add it to your Version Control System (from time to time).
-
 # Contributions
 Everybody is welcome to improve existing solution.
 
-> **Note:** Unit tests work fine if you open the project with IntelliJ Idea, while with Android Studio
+> :speech_balloon: **Note:** Unit tests work fine if you open the project with IntelliJ Idea, while with Android Studio
 they don't. Alternatively, you can simulate a real build script by running `gradle install`
 and `gradle -b build-test.gradle [grabverRelease]` OR testing with modules `gradle build [grabverRelease]`.
 

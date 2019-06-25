@@ -58,33 +58,33 @@ class VersioningExtension {
             println("INFO - Evaluating user values: {${version}${tasks}}")
             // Auto reset Patch in case they differ or preRelease is set
             if (major != propMajor || minor != propMinor || isPreRelease()) {
-                if (!grabver.isFirstRun && propMajor != 0 && major > propMajor && minor != 0) {
+                if (!grabver.firstRun && propMajor != 0 && major > propMajor && minor != 0) {
                     println(styler(RED, "ERROR - Expected minor to be 0 if major has increased"))
                     throw new IllegalArgumentException("Inconsistent minor value: major has changed but minor is not 0")
                 }
-                if (!grabver.isFirstRun && propMinor != 0 && minor > propMinor && patch > 0) {
+                if (!grabver.firstRun && propMinor != 0 && minor > propMinor && patch > 0) {
                     println(styler(RED, "ERROR - Expected patch to be 0 if minor has increased"))
                     throw new IllegalArgumentException("Inconsistent patch value: minor has changed but patch is not 0")
                 }
                 if (patch < 0) {
-                    println("INFO - Auto resetting patch version")
+                    grabver.printDebug("Auto resetting patch version")
                     patch = 0
                 }
             } else if (isRelease && patch < 0) {
-                println("INFO - Auto incrementing patch version")
+                grabver.printDebug("Auto incrementing patch version")
                 // Auto-increment Patch if Major or Minor do not differ from user
                 patch = propPatch + 1
             }
             // Always auto-increment build number
-            println("INFO - Auto incrementing build number")
+            grabver.printDebug("Auto incrementing build number")
             build++
             // Auto-increment Code only in case of release
             if (isRelease) {
-                println("INFO - Auto incrementing code version")
+                grabver.printDebug("Auto incrementing code version")
                 code += 1
             }
             propPreRelease = preRelease
-            println("INFO - Evaluation complete!")
+            grabver.printDebug("Evaluation complete: ${bold(toString())}")
         }
     }
 
@@ -97,7 +97,7 @@ class VersioningExtension {
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
         code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "1"))
         if (!silent) {
-            println("INFO - Current versioning: " + bold(toStringCurrent()))
+            println("INFO - Current version: " + bold(toStringCurrent()))
         }
     }
 
@@ -141,7 +141,7 @@ class VersioningExtension {
     }
 
     /**
-     * @return "<code>major.minor.patch[-preRelease] #build built on date</code>"
+     * @return "<code>major.minor.patch[-preRelease] #buildNr built on yyyy.MM.dd</code>"
      */
     String getFullName() {
         return getName() + " #" + build + getBuiltOn()

@@ -49,21 +49,25 @@ import static eu.davidea.gradle.ConsoleColors.*
  */
 class GrabVer implements Plugin<Project> {
 
-    private static String GRABVER_VERSION = "2.0.0"
+    private static String GRABVER_VERSION = "2.0.1"
     private static String[] RELEASE_TASKS = ["assembleRelease", "bundleRelease", "grabverRelease"]
     private static String[] SAVE_TASKS = ["build", "assembleDebug", "assembleRelease", "bundleDebug", "bundleRelease", "grabverRelease", "jar", "war", "explodedWar"]
 
     // Extension reference
     private VersioningExtension versioning
     // Internal references
-    private Project project
     private File versionFile
     private OrderedProperties versionProps
-    protected boolean isFirstRun = false
+    protected Project project
+    protected boolean firstRun = false
+    protected boolean debug = false
 
     void apply(Project project) {
         project.task('grabverRelease') {
-            // Dummy task to force trigger release versioning (also used in unit test)
+            // Dummy task to force release versioning calculation (also used in unit test)
+        }
+        project.task('grabverDebug') {
+            // Dummy task to log/display debug steps
         }
 
         // Create new empty versioning instance
@@ -87,8 +91,8 @@ class GrabVer implements Plugin<Project> {
         // Gradle build complete
         project.gradle.buildFinished() { BuildResult result ->
             println("") // Print empty line
-            if (isFirstRun || !succeededTasks.isEmpty()) {
-                println(bold("> Module: ${project.name}"))
+            if (firstRun || !succeededTasks.isEmpty()) {
+                println(bold("> Module: ${project.name}          ")) // Fix for dirty print
                 for (Task task in succeededTasks) {
                     String state = task.state.skipMessage != null
                             ? styler(YELLOW, task.state.skipMessage)
@@ -115,6 +119,7 @@ class GrabVer implements Plugin<Project> {
      */
     protected boolean readUserConfiguration() {
         List<String> runTasks = project.gradle.startParameter.taskNames
+        this.debug = runTasks.contains("grabverDebug")
 
         // Silent evaluation looking for activation/save tasks
         if (!shouldSave(runTasks, project.name, versioning.saveOn)) {
@@ -123,20 +128,18 @@ class GrabVer implements Plugin<Project> {
                     : println(styler(YELLOW, "> GrabVer - No save task detected"))
             // Load existing properties file to provide last values
             loadProperties(true)
-            return isFirstRun
+            return firstRun
         }
 
         // Silent evaluation done. If passes, at least one save task was detected.
         // Plugin info
-        String rootProject = project.rootProject.name
         println(bold("> Plugin GrabVer v${GRABVER_VERSION}"))
-        println("INFO - Root project ${rootProject}")
 
         // Load existing properties file
         loadProperties(false)
         // Display extra info
-        println("INFO - runTasks=" + runTasks)
-        println("INFO - Save task detected") // Real detection was done in silent mode
+        printDebug("runTasks=" + runTasks)
+        printDebug("Save task detected") // Real detection was done in silent mode
 
         // Patch and Code increment depending on release task
         if (isRelease(runTasks, project.name, versioning)) {
@@ -166,26 +169,18 @@ class GrabVer implements Plugin<Project> {
         String filename = 'version.properties'
 
         // Root or Module versioning
-        if (rootProject == module) {
-            if (!silent) {
-                println("INFO - Versioning root project ${module}")
-            }
-        } else {
-            if (!silent) {
-                println("INFO - Versioning module ${module}")
-            }
+        if (rootProject != module) {
             filename = module + File.separator + filename
         }
         filename = project.rootDir.toString() + File.separator + filename
 
         File file = new File(filename)
         if (!file.canRead()) {
-            this.isFirstRun = true
-            println(styler(YELLOW, "WARN - Could not find properties file ${filename}"))
-            println(styler(YELLOW, "WARN - Creating new properties file!"))
+            this.firstRun = true
+            println(styler(YELLOW, "WARN - Creating new properties file ${filename}"))
             file.createNewFile()
         } else if (!silent) {
-            println("INFO - Versioning file ${filename}")
+            printDebug("Versioning file ${filename}")
         }
         return file
     }
@@ -238,6 +233,12 @@ class GrabVer implements Plugin<Project> {
     private static String getAndroidTask(String task) {
         int lastIndex = task.lastIndexOf(":")
         return (lastIndex > 0) ? task.substring(lastIndex + 1) : task
+    }
+
+    protected printDebug(String message) {
+        if (debug) {
+            println("DEBUG - ${message}")
+        }
     }
 
 }
