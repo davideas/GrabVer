@@ -25,7 +25,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation gradleApi()
     implementation localGroovy()
-    implementation 'nu.studer:java-ordered-properties:1.0.1'
+    implementation 'nu.studer:java-ordered-properties:1.0.2'
 
     testImplementation gradleTestKit()
     testImplementation group: 'junit', name: 'junit', version: '4.12'
@@ -39,7 +39,7 @@ ext {
 
     // Library Repository
     libraryName = 'GrabVer'
-    libraryVersion = '2.0.1'
+    libraryVersion = '2.0.2'
     displayName = 'Gradle Automatic Build Versioning Plugin'
     libraryDescription = 'An easy Gradle plugin that follows semver.org rules to automatically generate the Patch version, Build number and Code version, while Major, Minor and Pre-Release suffix remain under our control.'
     libraryLabels = ['semver', 'version', 'versioning', 'build-versioning', 'automatic-versioning', 'intellij-idea', 'android-studio', 'auto-reset']
