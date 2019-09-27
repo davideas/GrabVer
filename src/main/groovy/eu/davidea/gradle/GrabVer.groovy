@@ -49,7 +49,7 @@ import static eu.davidea.gradle.ConsoleColors.*
  */
 class GrabVer implements Plugin<Project> {
 
-    private static String GRABVER_VERSION = "2.0.1"
+    private static String GRABVER_VERSION = "2.0.2"
     private static String[] RELEASE_TASKS = ["assembleRelease", "bundleRelease", "grabverRelease"]
     private static String[] SAVE_TASKS = ["build", "assembleDebug", "assembleRelease", "bundleDebug", "bundleRelease", "grabverRelease", "jar", "war", "explodedWar"]
 
