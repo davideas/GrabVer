@@ -52,6 +52,7 @@ class GrabVer implements Plugin<Project> {
     private static String GRABVER_VERSION = "2.0.2"
     private static String[] RELEASE_TASKS = ["assembleRelease", "bundleRelease", "grabverRelease"]
     private static String[] SAVE_TASKS = ["build", "assembleDebug", "assembleRelease", "bundleDebug", "bundleRelease", "grabverRelease", "jar", "war", "explodedWar"]
+    private static String VERSIONING_FILENAME = 'version.properties'
 
     // Extension reference
     private VersioningExtension versioning
@@ -164,16 +165,7 @@ class GrabVer implements Plugin<Project> {
     }
 
     private File getFile(boolean silent) {
-        String rootProject = this.project.rootProject.name
-        String module = project.name
-        String filename = 'version.properties'
-
-        // Root or Module versioning
-        if (rootProject != module) {
-            filename = module + File.separator + filename
-        }
-        filename = project.rootDir.toString() + File.separator + filename
-
+        String filename = this.project.projectDir.absolutePath + File.separator + VERSIONING_FILENAME
         File file = new File(filename)
         if (!file.canRead()) {
             this.firstRun = true
