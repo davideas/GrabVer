@@ -44,7 +44,7 @@ buildscript {
     }
     dependencies {
         // Using Bintray or Gradle Plugins repository
-        classpath "eu.davidea:grabver:2.0.1"
+        classpath "eu.davidea:grabver:2.0.2"
     }
 }
 ```
