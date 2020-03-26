@@ -34,6 +34,7 @@ import static eu.davidea.gradle.ConsoleColors.*
  * <b>saveOn</b>: Optional, custom task name for which you want to save the versioning file
  * (default: <code>build, assembleDebug, assembleRelease, bundleDebug, bundleRelease, grabverRelease, jar,
  * war, explodedWar</code>).
+ * <b>versionFile</b>: Optional, set alternative version file name, default is version.properties
  *
  * <br><br><u>Calculation</u>:
  * <p><b>build</b> - increases at each build.<br>
@@ -165,7 +166,7 @@ class GrabVer implements Plugin<Project> {
     }
 
     private File getFile(boolean silent) {
-        String filename = this.project.projectDir.absolutePath + File.separator + VERSIONING_FILENAME
+        String filename = this.project.projectDir.absolutePath + File.separator + (versioning.versionFile != null ? versioning.versionFile : VERSIONING_FILENAME)
         File file = new File(filename)
         if (!file.canRead()) {
             this.firstRun = true
