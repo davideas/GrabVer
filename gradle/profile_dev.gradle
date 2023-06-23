@@ -1,0 +1,66 @@
+import org.gradle.internal.os.OperatingSystem
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'com.moowork.node'
+
+ext {
+    logbackLoglevel = "DEBUG"
+}
+
+def profiles = 'dev'
+project.ext.profile=profiles
+if (project.hasProperty('no-liquibase')) {
+    profiles += ',no-liquibase'
+}
+
+bootRun {
+    args = []
+}
+
+task buildFrontEnd (type:Copy, dependsOn: ['mod_permission', ':jserver7:buildnonprod']) {
+	from '../jserver7/dist/jserver7'
+    into 'build/www'
+}
+
+task buildOSLCFrontEnd (type:Copy, dependsOn: ['mod_permission', ':jserver7:buildprod', 'buildFrontEnd']) {
+	from 'build/www/oslc'
+    into 'src/main/resources/oslc/template'
+}
+
+war {
+	webAppDirName = 'build/www/'
+}
+
+processResources {
+    filesMatching('**/logback-spring.xml') {
+        filter {
+            it.replace('#logback.loglevel#', logbackLoglevel)
+        }
+        filter {
+            it.replace('#logback.loglevelConsole#', "EMPTY")
+        }
+    }
+    filesMatching('**/application.yml') {
+        filter {
+            it.replace('#spring.profiles.active#', profiles)
+        }
+        filter {
+            it.replace('#application.version.buildDate#', project.buildDate)
+        }
+        filter {
+            it.replace('#application.version.clNumber#', project.clNumber)
+        }
+        filter {
+            it.replace('#application.version.buildNumber#', project.version)
+        }
+		filter {
+			it.replace('#application.version.viqVersion#', project.viqVersion)
+		}
+		filter {
+			it.replace('#application.version.viqPatchLevel#', project.viqPatchLevel)
+		}
+    }
+}
+
+processResources.dependsOn buildOSLCFrontEnd
+buildFrontEnd.onlyIf { project.hasProperty('buildFrontEnd') }

@@ -2,8 +2,9 @@ apply plugin: 'eu.davidea.grabver'
 
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         mavenLocal()
+	maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath 'eu.davidea:grabver:2.0.2'

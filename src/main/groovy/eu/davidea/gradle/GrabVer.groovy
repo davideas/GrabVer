@@ -20,6 +20,8 @@ import org.gradle.BuildResult
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import groovy.lang.GroovyObject
+import groovy.lang.MetaClass
 
 import static eu.davidea.gradle.ConsoleColors.*
 
@@ -48,9 +50,9 @@ import static eu.davidea.gradle.ConsoleColors.*
  * @author Davide Steduto
  * @since 19/05/2017
  */
-class GrabVer implements Plugin<Project> {
+class GrabVer implements Plugin<Project>/*, GroovyObject*/ {
 
-    private static String GRABVER_VERSION = "2.0.2"
+    private static String GRABVER_VERSION = "2.0.3"
     private static String[] RELEASE_TASKS = ["assembleRelease", "bundleRelease", "grabverRelease"]
     private static String[] SAVE_TASKS = ["build", "assembleDebug", "assembleRelease", "bundleDebug", "bundleRelease", "grabverRelease", "jar", "war", "explodedWar"]
     private static String VERSIONING_FILENAME = 'version.properties'
@@ -63,6 +65,7 @@ class GrabVer implements Plugin<Project> {
     protected Project project
     protected boolean firstRun = false
     protected boolean debug = false
+    protected MetaClass metaClass
 
     void apply(Project project) {
         project.task('grabverRelease') {
@@ -234,4 +237,15 @@ class GrabVer implements Plugin<Project> {
         }
     }
 
+/*
+    @Override
+    public MetaClass getMetaClass() {
+        return metaClass
+    }
+
+    @Override
+    public void setMetaClass(MetaClass metaClass) {
+        this.metaClass = metaClass
+    }
+*/
 }

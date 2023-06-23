@@ -1,0 +1,5 @@
+apply plugin: "net.ltgt.apt"
+
+dependencies {
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct_version}"
+}
