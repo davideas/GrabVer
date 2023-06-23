@@ -17,7 +17,7 @@ apply plugin: 'maven'
 apply plugin: 'com.gradle.plugin-publish'
 
 repositories {
-    jcenter()
+    mavenCentral()
     mavenLocal()
 }
 
@@ -25,7 +25,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation gradleApi()
     implementation localGroovy()
-    implementation 'nu.studer:java-ordered-properties:1.0.2'
+    implementation 'nu.studer:java-ordered-properties:1.0.4'
 
     testImplementation gradleTestKit()
     testImplementation group: 'junit', name: 'junit', version: '4.12'
