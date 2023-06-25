@@ -1,0 +1,26 @@
+import org.gradle.internal.os.OperatingSystem
+
+task buildDocker(type: Exec) {
+    doFirst {
+        copy {
+            from "src/main/docker/"
+            into "build/docker/"
+            include "*"
+        }
+        copy {
+            from "${projectDir}/plugins"
+            into "build/docker/plugins"
+            include "*.zip"
+        }
+        copy {
+            from "build/libs"
+            into "build/docker/"
+            include "*.war"
+        }
+    }
+    if (OperatingSystem.current().isWindows()) {
+        commandLine 'cmd', '/c', 'docker', 'build', '-f', 'build/docker/Dockerfile', '-t', 'halos-jserver', 'build/docker/'
+    } else {
+        commandLine 'docker', 'build', '-f', 'build/docker/Dockerfile', '-t', 'halos-jserver', 'build/docker/'
+    }
+}

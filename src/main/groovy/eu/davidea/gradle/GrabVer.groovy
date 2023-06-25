@@ -20,6 +20,8 @@ import org.gradle.BuildResult
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import groovy.lang.GroovyObject
+import groovy.lang.MetaClass
 
 import static eu.davidea.gradle.ConsoleColors.*
 
@@ -34,6 +36,7 @@ import static eu.davidea.gradle.ConsoleColors.*
  * <b>saveOn</b>: Optional, custom task name for which you want to save the versioning file
  * (default: <code>build, assembleDebug, assembleRelease, bundleDebug, bundleRelease, grabverRelease, jar,
  * war, explodedWar</code>).
+ * <b>versionFile</b>: Optional, set alternative version file name, default is version.properties
  *
  * <br><br><u>Calculation</u>:
  * <p><b>build</b> - increases at each build.<br>
@@ -47,9 +50,9 @@ import static eu.davidea.gradle.ConsoleColors.*
  * @author Davide Steduto
  * @since 19/05/2017
  */
-class GrabVer implements Plugin<Project> {
+class GrabVer implements Plugin<Project>/*, GroovyObject*/ {
 
-    private static String GRABVER_VERSION = "2.0.2"
+    private static String GRABVER_VERSION = "2.0.3"
     private static String[] RELEASE_TASKS = ["assembleRelease", "bundleRelease", "grabverRelease"]
     private static String[] SAVE_TASKS = ["build", "assembleDebug", "assembleRelease", "bundleDebug", "bundleRelease", "grabverRelease", "jar", "war", "explodedWar"]
     private static String VERSIONING_FILENAME = 'version.properties'
@@ -62,6 +65,7 @@ class GrabVer implements Plugin<Project> {
     protected Project project
     protected boolean firstRun = false
     protected boolean debug = false
+    protected MetaClass metaClass
 
     void apply(Project project) {
         project.task('grabverRelease') {
@@ -165,7 +169,7 @@ class GrabVer implements Plugin<Project> {
     }
 
     private File getFile(boolean silent) {
-        String filename = this.project.projectDir.absolutePath + File.separator + VERSIONING_FILENAME
+        String filename = this.project.projectDir.absolutePath + File.separator + (versioning.versionFile != null ? versioning.versionFile : VERSIONING_FILENAME)
         File file = new File(filename)
         if (!file.canRead()) {
             this.firstRun = true
@@ -233,4 +237,15 @@ class GrabVer implements Plugin<Project> {
         }
     }
 
+/*
+    @Override
+    public MetaClass getMetaClass() {
+        return metaClass
+    }
+
+    @Override
+    public void setMetaClass(MetaClass metaClass) {
+        this.metaClass = metaClass
+    }
+*/
 }

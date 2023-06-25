@@ -32,6 +32,7 @@ class VersioningExtension {
     String preRelease
     String incrementOn
     String saveOn
+    String versionFile
     // Private values from properties
     private String propPreRelease
     private int propMajor
