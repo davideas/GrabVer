@@ -1,34 +1,29 @@
 buildscript {
     repositories {
         mavenLocal()
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
-        classpath 'com.gradle.publish:plugin-publish-plugin:0.10.1'
+        mavenCentral()
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'com.gradle.plugin-publish'
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'com.gradle.plugin-publish' version '1.2.1'
+}
 
 repositories {
-    jcenter()
     mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation gradleApi()
     implementation localGroovy()
-    implementation 'nu.studer:java-ordered-properties:1.0.2'
+    implementation 'nu.studer:java-ordered-properties:1.0.4'
 
     testImplementation gradleTestKit()
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
 }
 
 ext {
@@ -38,17 +33,15 @@ ext {
     developerEmail = 'dave.dna@gmail.com'
 
     // Library Repository
+    groupId = 'eu.davidea'
+    artifactId = 'grabver'
     libraryName = 'GrabVer'
-    libraryVersion = '2.0.2'
-    displayName = 'Gradle Automatic Build Versioning Plugin'
+    libraryVersion = '2.0.3'
+    libraryTitle = 'Gradle Automatic Build Versioning Plugin'
     libraryDescription = 'An easy Gradle plugin that follows semver.org rules to automatically generate the Patch version, Build number and Code version, while Major, Minor and Pre-Release suffix remain under our control.'
-    libraryLabels = ['semver', 'version', 'versioning', 'build-versioning', 'automatic-versioning', 'intellij-idea', 'android-studio', 'auto-reset']
+    libraryTags = ['semver', 'version', 'versioning', 'build-versioning', 'automatic-versioning', 'intellij-idea', 'android-studio', 'auto-reset']
     siteUrl = 'https://github.com/davideas/GrabVer'
     gitUrl = 'https://github.com/davideas/GrabVer.git'
-    bintrayRepo = 'maven'
-    bintrayName = 'grabver'
-    publishedGroupId = 'eu.davidea'
-    id = publishedGroupId + '.' + bintrayName
 
     // License
     licenseName = 'The Apache Software License, Version 2.0'
@@ -56,31 +49,41 @@ ext {
     allLicenses = ['Apache-2.0']
 }
 
-// To publish on Gradle Plugins: gradle publishPlugins
-group publishedGroupId
+group groupId
 version libraryVersion
 
-pluginBundle {
+javadoc {
+    // Suppresses the warnings
+    options.addBooleanOption('Xdoclint:none', true)
+}
+
+// To publish to Maven local: gradle publishToMavenLocal
+// To publish to Gradle Plugin Central: gradle publishPlugin [--validate-only]
+gradlePlugin {
     website = project.siteUrl
     vcsUrl = project.gitUrl
-    description = project.libraryDescription
-    tags = project.libraryLabels
 
     plugins {
         grabverPlugin {
-            id = project.id
-            displayName = project.displayName
+            id = project.groupId + '.' + project.artifactId
+            displayName = project.libraryTitle
+            description = project.libraryDescription
+            tags = project.libraryTags
+            implementationClass = project.groupId + '.gradle.GrabVer'
         }
-    }
-
-    mavenCoordinates {
-        groupId = publishedGroupId
-        artifactId = bintrayName
-        version = libraryVersion
     }
 }
 
-// To publish on Bintray: gradle bintrayUpload
-if (gradle.getStartParameter().getTaskNames().contains("bintrayUpload")) {
-    apply from: 'jfrog-bintray-publish.gradle'
+// To publish to Maven: gradle publish
+if (gradle.getStartParameter().getTaskNames().contains("publish")) {
+    //apply from: 'maven-publish.gradle'
+}
+
+// To run unit tests add in command line: -P test
+tasks.test {
+    it.jvmArgs = ["--add-opens=java.base/java.lang=ALL-UNNAMED"]
+
+    onlyIf {
+        providers.gradleProperty("test").isPresent()
+    }
 }

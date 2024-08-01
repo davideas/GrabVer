@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Davidea Solutions Sprl
+ * Copyright 2017-2024 Davidea Solutions Sprl
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import static eu.davidea.gradle.ConsoleColors.*
  */
 class GrabVer implements Plugin<Project> {
 
-    private static String GRABVER_VERSION = "2.0.2"
+    private static String GRABVER_VERSION = "2.0.3"
     private static String[] RELEASE_TASKS = ["assembleRelease", "bundleRelease", "grabverRelease"]
     private static String[] SAVE_TASKS = ["build", "assembleDebug", "assembleRelease", "bundleDebug", "bundleRelease", "grabverRelease", "jar", "war", "explodedWar"]
     private static String VERSIONING_FILENAME = 'version.properties'

@@ -56,7 +56,7 @@ public enum ConsoleColors {
     CYAN_BOLD_BRIGHT("\033[1;96m"),  // CYAN
     WHITE_BOLD_BRIGHT("\033[1;97m"); // WHITE
 
-    String code;
+    private String code;
 
     ConsoleColors(String code) {
         this.code = code;
@@ -73,5 +73,4 @@ public enum ConsoleColors {
     public static String styler(ConsoleColors color, String message) {
         return color.code + message + ConsoleColors.RESET.code;
     }
-
 }

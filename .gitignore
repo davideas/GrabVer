@@ -3,6 +3,7 @@ bin/
 gen/
 build/
 build-test/
+lib/
 
 # Gradle files
 .gradle/

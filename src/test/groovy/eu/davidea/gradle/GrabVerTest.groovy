@@ -6,6 +6,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+
 /**
  * @author Davide Steduto
  * @since 19/05/2017
@@ -17,7 +18,7 @@ class GrabVerTest {
     private static final PLUGIN_ID = 'eu.davidea.grabver'
 
     @Before
-    void setUp() {
+    void setup() {
         project = ProjectBuilder.builder().withProjectDir(new File(".")).build()
         simulateProperties(1, 1, 1, 20, 3)
     }
@@ -293,5 +294,4 @@ class GrabVerTest {
         }
         return versionPropsFile
     }
-
 }

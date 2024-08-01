@@ -1,7 +1,15 @@
+pluginManagement {
+    repositories {
+        flatDir { dirs 'build/libs' }
+        mavenLocal()
+        mavenCentral()
+        maven { url 'https://plugins.gradle.org/m2/' }
+    }
+}
+
 rootProject.name = 'grabver'
 
-if (gradle.startParameter.taskNames.contains("build")) {
+if (gradle.startParameter.taskNames.contains("test")) {
     include 'module_a'
     include 'module_b'
 }
-

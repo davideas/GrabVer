@@ -33,19 +33,19 @@ Automatic Incremental Gradle Versioning</a>. Customized into library with PreRel
 **code** - Increases at each release.
 
 ## Installation
-Configure script dependencies in the project _build.gradle_ file:
+Configure plugin management in _settings.gradle_ file: 
 ``` gradle
-buildscript {
+pluginManagement {
     repositories {
-        // Using Bintray repository:
-        maven { url "http://dl.bintray.com/davideas/maven" }
-        // or Gradle plugins repository:
         maven { url "https://plugins.gradle.org/m2/" }
     }
-    dependencies {
-        // Using Bintray or Gradle Plugins repository
-        classpath "eu.davidea:grabver:2.0.2"
-    }
+}
+```
+
+Configure build script in each _build.gradle_ file:
+``` gradle
+plugins {
+    id "eu.davidea.grabver" version "2.0.3"
 }
 ```
 
@@ -139,7 +139,7 @@ and `gradle -b build-test.gradle [grabverRelease]` OR testing with modules `grad
 
 # License
 
-    Copyright 2017-2019 Davidea Solutions Sprl
+    Copyright 2017-2024 Davidea Solutions Sprl
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

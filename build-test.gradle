@@ -1,25 +1,16 @@
-apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'eu.davidea.grabver'
-
 /*
- * INSTRUCTIONS to test new Version:
- * - Change versions
- * - Use mavenLocal() in repositories
- * - Execute:
- * gradle install
- * - Specify the build file (--build-file):
- * gradle -b build-test.gradle
+ * INSTRUCTIONS to test in local maven repository:
+ * - Command line to publish to maven local: gradle publishToMavenLocal
+ * - Use mavenLocal() in repositories to target the local/unpublished GrabVer version
+ * - Change digits in versioning
+ * - Command line of this file: gradle -b build-test.gradle build
+ * - Check versioning.properties
+ * - Change digits in versioning again and again, as you wish
  */
-buildscript {
-    repositories {
-        jcenter()
-        mavenLocal()
-    }
-    //noinspection GroovyAssignabilityCheck
-    dependencies {
-        classpath 'eu.davidea:grabver:2.0.2'
-    }
+plugins {
+    id 'java'
+    id 'groovy'
+    id "eu.davidea.grabver" version "2.0.3"
 }
 
 versioning {
@@ -29,20 +20,25 @@ versioning {
     incrementOn "jar"
     saveOn "jar"
 }
+
 println("TEST - VersionCode: ${versioning.code}")
 println("TEST - VersionName: ${versioning.name}")
 println("TEST - FullName: ${versioning.fullName}")
 
 repositories {
-    jcenter()
     mavenLocal()
+    mavenCentral()
 }
 
 dependencies {
     implementation gradleApi()
     implementation localGroovy()
-    implementation 'nu.studer:java-ordered-properties:1.0.1'
+    implementation 'nu.studer:java-ordered-properties:1.0.4'
 
     testImplementation gradleTestKit()
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+}
+
+tasks.test {
+    enabled false
 }
