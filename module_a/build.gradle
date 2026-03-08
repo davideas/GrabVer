@@ -1,12 +1,14 @@
 plugins {
-    id 'eu.davidea.grabver' version '2.0.3'
+    id 'java'
+    id 'eu.davidea.grabver'
 }
 
 versioning {
     major 1
     minor 2
-    incrementOn 'build'
+    incrementBuild true
 }
+defaultTasks('grabverDebug')
 
 println("MODULE_A - VersionCode: ${versioning.code}")
 println("MODULE_A - VersionName: ${versioning.name}")
