@@ -13,6 +13,7 @@ public enum ConsoleColors {
     PURPLE("\033[0;35m"),  // PURPLE
     CYAN("\033[0;36m"),    // CYAN
     WHITE("\033[0;37m"),   // WHITE
+    GRAY("\033[0;90m"),    // GRAY
 
     // Bold
     ONLY_BOLD("\033[1m"),      // ONLY BOLD

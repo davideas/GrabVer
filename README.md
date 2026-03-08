@@ -24,6 +24,7 @@ Automatic Incremental Gradle Versioning</a>. Customized into library with PreRel
 **minor**: Required, user defined value for new features, but backwards compatible. If you increase _Major_ version, this value must be coherent(=0).<br>
 **patch**: Optional, user defined value (or auto-generated value) for backwards compatible bug fixes only.<br>
 **preRelease**: Optional, user defined value for pre-releases suffix.<br>
+**incrementBuild**: Optional, set to `false` to disable build number auto-increment during development (default: `true`). When disabled, the file is only saved on release builds or when manual version changes are detected.<br>
 **incrementOn**: Optional, custom task name to trigger the increase of the version (default: `assembleRelease`, `bundleRelease`, `grabverRelease`).<br>
 **saveOn**: Optional, custom task name for which you want to save the versioning file (default: `build`, `assembleDebug`, `assembleRelease`, `bundleDebug`, `bundleRelease`, `grabverRelease`, `jar`, `war`, `explodedWar`).
 
@@ -45,7 +46,7 @@ pluginManagement {
 Configure build script in each _build.gradle_ file:
 ``` gradle
 plugins {
-    id "eu.davidea.grabver" version "2.0.3"
+    id "eu.davidea.grabver" version "2.1.0"
 }
 ```
 
@@ -66,6 +67,8 @@ versioning {
     patch 7
     // Optional (any string)
     preRelease "RC1"
+    // Optional, disable build number increment during development (default: true)
+    incrementBuild false
     // Optional, custom task name to trigger the increase of the version
     incrementOn "<task-name>"
     // Optional, custom task name for which you want to save the versioning file
@@ -114,7 +117,7 @@ gradle [assembleRelease | bundleRelease | grabverRelease]
 - In Android Studio:
   - via menu _build > Build Bundle / APK_ (bundleDebug | assembleDebug)
   - via menu _build > Generate Signed Bundle / APK_ (bundleRelease | assembleRelease).
-  - by _running the App_ (assembleDebug | assembleRelease, depending by the build variant).
+  - by _running the App_ (assembleDebug | assembleRelease, depending on the build variant).
 
 From [version 2](https://github.com/davideas/GrabVer/releases/tag/2.0.0), the plugin evaluates the run tasks
 in silent mode to automatically skip the new version evaluation and to not print unnecessary logs _if_ no save task
@@ -130,6 +133,24 @@ tasks out there will not trigger the versioning evaluation. Example:
 |`gradle clean build`|Evaluation triggered and new values saved|
 |`gradle clean war grabverRelease`|Evaluation triggered, versioning increased and new values saved|
 
+### 4. Control Build Number Increment
+By default, the build number increments on every build. To avoid constant `version.properties` changes during development (useful for Git workflows), disable it:
+
+```gradle
+versioning {
+    major 1
+    minor 2
+    incrementBuild false  // Disable during development
+}
+```
+
+**Behavior:**
+- Debug builds → Build number unchanged, file not modified
+- Release builds → Code/patch increment, file saved
+- Manual version changes → File saved
+
+> :bulb: **Tip:** Toggle `incrementBuild` based on your workflow needs.
+
 # Contributions
 Everybody is welcome to improve existing solution.
 
@@ -139,7 +160,7 @@ and `gradle -b build-test.gradle [grabverRelease]` OR testing with modules `grad
 
 # License
 
-    Copyright 2017-2024 Davidea Solutions Sprl
+    Copyright 2017-2026 Davidea Solutions Srl
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

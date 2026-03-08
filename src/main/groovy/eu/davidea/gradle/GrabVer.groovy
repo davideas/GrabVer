@@ -29,6 +29,7 @@ import static eu.davidea.gradle.ConsoleColors.*
  * <b>minor</b>: User defined new features, but backwards compatible.<br>
  * <b>patch</b>: Optional, user defined value or Auto generated backwards compatible bug fixes only.<br>
  * <b>preRelease</b>: Optional, user defined value for versionName.<br>
+ * <b>incrementBuild</b>: Optional, set to false to disable build number auto-increment (default: true).<br>
  * <b>incrementOn</b>: Optional, custom task name to trigger the increase of the version
  * (default: <code>assembleRelease, bundleRelease, grabverRelease</code>).<br>
  * <b>saveOn</b>: Optional, custom task name for which you want to save the versioning file
@@ -49,7 +50,7 @@ import static eu.davidea.gradle.ConsoleColors.*
  */
 class GrabVer implements Plugin<Project> {
 
-    private static String GRABVER_VERSION = "2.0.3"
+    private static String GRABVER_VERSION = "2.1.0"
     private static String[] RELEASE_TASKS = ["assembleRelease", "bundleRelease", "grabverRelease"]
     private static String[] SAVE_TASKS = ["build", "assembleDebug", "assembleRelease", "bundleDebug", "bundleRelease", "grabverRelease", "jar", "war", "explodedWar"]
     private static String VERSIONING_FILENAME = 'version.properties'
@@ -100,8 +101,12 @@ class GrabVer implements Plugin<Project> {
                             : styler(GREEN, 'EXECUTED')
                     println("Task: ${task.name} ${state}")
                 }
-                // Save new versioning
-                saveFile()
+                // Save new versioning only if something changed
+                if (versioning.incrementBuild || versioning.isRelease || versioning.hasUserChanges()) {
+                    saveFile()
+                } else {
+                    println(styler(GRAY, "> GrabVer - No version changes, skipping save"))
+                }
             } else if (result.failure != null) {
                 println(styler(RED, project.name.toUpperCase() + ' - ' + result.failure.getLocalizedMessage()))
             }
@@ -125,29 +130,29 @@ class GrabVer implements Plugin<Project> {
         // Silent evaluation looking for activation/save tasks
         if (!shouldSave(runTasks, project.name, versioning.saveOn)) {
             runTasks.isEmpty()
-                    ? println(styler(YELLOW, "> GrabVer - No RunTask specified. Is Gradle syncing?"))
-                    : println(styler(YELLOW, "> GrabVer - No save task detected"))
+                    ? println(styler(GRAY, "> GrabVer - No RunTask specified. Is Gradle syncing?"))
+                    : println(styler(GRAY, "> GrabVer - No save task detected"))
             // Load existing properties file to provide last values
             loadProperties(true)
             return firstRun
         }
 
         // Silent evaluation done. If passes, at least one save task was detected.
+        printDebug("Save task detected")
+
         // Plugin info
         println(bold("> Plugin GrabVer v${GRABVER_VERSION}"))
 
         // Load existing properties file
         loadProperties(false)
-        // Display extra info
-        printDebug("runTasks=" + runTasks)
-        printDebug("Save task detected") // Real detection was done in silent mode
 
         // Patch and Code increment depending on release task
+        boolean isAndroid = project.plugins.findPlugin("com.android")
         if (isRelease(runTasks, project.name, versioning)) {
             versioning.isRelease = true
-            println("INFO - ${styler(BLUE, "Release")} build detected => 'Code' version will auto increment")
+            println("INFO - ${styler(BLUE, "release")} build detected" + (isAndroid ? " => 'Code' version will auto increment" : ""))
         } else {
-            println("INFO - Running ${styler(BLUE, "normal")} build => 'Code' version remains unchanged")
+            println("INFO - Running ${styler(BLUE, "debug")} build" + (isAndroid ? " => 'Code' version remains unchanged" : ""))
         }
         return true
     }
@@ -232,5 +237,4 @@ class GrabVer implements Plugin<Project> {
             println("DEBUG - ${message}")
         }
     }
-
 }

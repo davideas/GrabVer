@@ -32,6 +32,7 @@ class VersioningExtension {
     String preRelease
     String incrementOn
     String saveOn
+    boolean incrementBuild = true
     // Private values from properties
     private String propPreRelease
     private int propMajor
@@ -54,7 +55,10 @@ class VersioningExtension {
                 return
             }
             String version = "version: ${bold("${major}.${minor}${patch < 0 ? "" : ".${patch}"}${isPreRelease() ? "-${preRelease}" : ""}")}"
-            String tasks = (incrementOn != null ? ", incrementOn: ${bold(incrementOn)}" : "") + (saveOn != null ? ", saveOn: ${bold(saveOn)}" : "")
+            String tasks =
+                    (", incrementBuild: ${bold(incrementBuild.toString())}") +
+                    (incrementOn ? ", incrementOn: ${bold(incrementOn)}" : "") +
+                    (saveOn ? ", saveOn: ${bold(saveOn)}" : "")
             println("INFO - Evaluating user values: {${version}${tasks}}")
             // Auto reset Patch in case they differ or preRelease is set
             if (major != propMajor || minor != propMinor || isPreRelease()) {
@@ -75,9 +79,13 @@ class VersioningExtension {
                 // Auto-increment Patch if Major or Minor do not differ from user
                 patch = propPatch + 1
             }
-            // Always auto-increment build number
-            grabver.printDebug("Auto incrementing build number")
-            build++
+            // Auto-increment build number only if enabled
+            if (incrementBuild) {
+                grabver.printDebug("Auto incrementing build number")
+                build++
+            } else {
+                grabver.printDebug("Build number increment disabled")
+            }
             // Auto-increment Code only in case of release
             if (isRelease) {
                 grabver.printDebug("Auto incrementing code version")
@@ -99,6 +107,12 @@ class VersioningExtension {
         if (!silent) {
             println("INFO - Current version: " + bold(toStringCurrent()))
         }
+    }
+
+    protected boolean hasUserChanges() {
+        return major != propMajor || minor != propMinor ||
+                (patch >= 0 && patch != propPatch) ||
+                ((preRelease ?: "") != (propPreRelease ?: ""))
     }
 
     private isPreRelease() {
@@ -173,5 +187,4 @@ class VersioningExtension {
                 " #" + build +
                 " code=" + code
     }
-
 }

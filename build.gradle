@@ -1,10 +1,3 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-}
-
 plugins {
     id 'java'
     id 'groovy'
@@ -36,7 +29,7 @@ ext {
     groupId = 'eu.davidea'
     artifactId = 'grabver'
     libraryName = 'GrabVer'
-    libraryVersion = '2.0.3'
+    libraryVersion = '2.1.0'
     libraryTitle = 'Gradle Automatic Build Versioning Plugin'
     libraryDescription = 'An easy Gradle plugin that follows semver.org rules to automatically generate the Patch version, Build number and Code version, while Major, Minor and Pre-Release suffix remain under our control.'
     libraryTags = ['semver', 'version', 'versioning', 'build-versioning', 'automatic-versioning', 'intellij-idea', 'android-studio', 'auto-reset']
@@ -82,8 +75,4 @@ if (gradle.getStartParameter().getTaskNames().contains("publish")) {
 // To run unit tests add in command line: -P test
 tasks.test {
     it.jvmArgs = ["--add-opens=java.base/java.lang=ALL-UNNAMED"]
-
-    onlyIf {
-        providers.gradleProperty("test").isPresent()
-    }
 }
