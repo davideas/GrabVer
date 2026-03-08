@@ -114,18 +114,18 @@ class GrabVer implements Plugin<Project> {
     }
 
     /**
-     * This plugin needs configuration evaluation done during the Gradle project evaluation
-     * and before it completes.
-     * This plugin works without specifying any custom task, but because Gradle provides only one way
-     * to read the user values (at afterEvaluation time), it is too late for this plugin to wait such event.
-     * <p>To overcome at this "issue", this function is being called at the first extension invocation
-     * (user must grab one of the extension attribute).</p>
+     * Reads user configuration and determines if versioning should be evaluated.
+     * <p>Called when user accesses any extension attribute (e.g., versioning.name).
+     * Checks if any save tasks are present to decide whether to run in active mode
+     * (with logging) or silent mode (load existing values only).</p>
      *
-     * @return true to allow the saving, false to deactivate the plugin in silent mode.
+     * @return true if versioning should be saved (save task detected or first run), false otherwise.
      */
     protected boolean readUserConfiguration() {
-        List<String> runTasks = project.gradle.startParameter.taskNames
+        List<String> runTasks = project.gradle.startParameter.taskNames + project.defaultTasks
         this.debug = runTasks.contains("grabverDebug")
+        printDebug("runTasks=" + runTasks)
+        printDebug("saveOn=" + versioning.saveOn)
 
         // Silent evaluation looking for activation/save tasks
         if (!shouldSave(runTasks, project.name, versioning.saveOn)) {
