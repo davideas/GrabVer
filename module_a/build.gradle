@@ -10,6 +10,26 @@ versioning {
 }
 defaultTasks('grabverDebug')
 
+
+// Simulate Android product flavor tasks
+tasks.register('assembleFreeDebug') {
+    doLast {
+        println "Simulating assembleFreeDebug task"
+    }
+}
+
+tasks.register('assembleFreeRelease') {
+    doLast {
+        println "Simulating assembleFreeRelease task"
+    }
+}
+
+tasks.register('bundleProRelease') {
+    doLast {
+        println "Simulating bundleProRelease task"
+    }
+}
+
 println("MODULE_A - VersionCode: ${versioning.code}")
 println("MODULE_A - VersionName: ${versioning.name}")
 println("MODULE_A - FullName: ${versioning.fullName}")

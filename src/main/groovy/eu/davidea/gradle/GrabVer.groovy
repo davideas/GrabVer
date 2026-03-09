@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Davidea Solutions Sprl
+ * Copyright 2017-2026 Davidea Solutions Srl
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,9 @@ import static eu.davidea.gradle.ConsoleColors.*
 class GrabVer implements Plugin<Project> {
 
     private static String GRABVER_VERSION = "2.1.0"
-    private static String[] RELEASE_TASKS = ["assembleRelease", "bundleRelease", "grabverRelease"]
-    private static String[] SAVE_TASKS = ["build", "assembleDebug", "assembleRelease", "bundleDebug", "bundleRelease", "grabverRelease", "jar", "war", "explodedWar"]
+    private static String[] TASK_PREFIXES = ["assemble", "bundle"]
+    private static String[] RELEASE_TASKS = ["release", "grabverRelease"]
+    private static String[] SAVE_TASKS = ["build", "debug", "release", "jar", "war", "explodedWar", "grabverRelease"]
     private static String VERSIONING_FILENAME = 'version.properties'
 
     // Extension reference
@@ -62,7 +63,7 @@ class GrabVer implements Plugin<Project> {
     private OrderedProperties versionProps
     protected Project project
     protected boolean firstRun = false
-    protected boolean debug = false
+    protected static boolean debug = false
 
     void apply(Project project) {
         project.task('grabverRelease') {
@@ -77,38 +78,38 @@ class GrabVer implements Plugin<Project> {
         this.versioning.grabver = this
         this.project = project
 
-        // Evaluate success state on monitored tasks
-        Set<Task> succeededTasks = new HashSet<>()
+        // Evaluate monitored tasks
+        Set<Task> monitoredTasks = new HashSet<>()
         project.gradle.taskGraph.afterTask { Task task ->
             if ((task.project.name == project.rootProject.name || task.project.name == project.name) &&
-                    (task.name == versioning.saveOn || SAVE_TASKS.contains(task.name))) {
-                if (task.state.failure) {
-                    println("ERROR - ${project.name}:${task.name} ${styler(RED, 'FAILED')}")
-                } else if (!succeededTasks.contains(task)) {
-                    succeededTasks.add(task)
-                }
+                    (task.name == versioning.saveOn || matchesTask(task.name, SAVE_TASKS)) &&
+                    !monitoredTasks.contains(task)) {
+                monitoredTasks.add(task)
             }
         }
 
         // Gradle build complete
         project.gradle.buildFinished() { BuildResult result ->
             println("") // Print empty line
-            if (firstRun || !succeededTasks.isEmpty()) {
-                println(bold("> Module: ${project.name}          ")) // Fix for dirty print
-                for (Task task in succeededTasks) {
-                    String state = task.state.skipMessage != null
-                            ? styler(YELLOW, task.state.skipMessage)
-                            : styler(GREEN, 'EXECUTED')
+            if (firstRun || !monitoredTasks.isEmpty()) {
+                println(bold("> Module: ${project.name}"))
+                for (Task task in monitoredTasks) {
+                    String state = task.state.failure
+                            ? styler(RED, 'FAILED')
+                            : task.state.skipMessage != null
+                                    ? styler(YELLOW, task.state.skipMessage)
+                                    : styler(GREEN, 'EXECUTED')
                     println("Task: ${task.name} ${state}")
                 }
                 // Save new versioning only if something changed
                 if (versioning.incrementBuild || versioning.isRelease || versioning.hasUserChanges()) {
                     saveFile()
                 } else {
-                    println(styler(GRAY, "> GrabVer - No version changes, skipping save"))
+                    println("No version changes, skipping save")
                 }
             } else if (result.failure != null) {
-                println(styler(RED, project.name.toUpperCase() + ' - ' + result.failure.getLocalizedMessage()))
+                println(bold("> Module: ${project.name}"))
+                printError(result.failure.getLocalizedMessage())
             }
         }
     }
@@ -123,7 +124,7 @@ class GrabVer implements Plugin<Project> {
      */
     protected boolean readUserConfiguration() {
         List<String> runTasks = project.gradle.startParameter.taskNames + project.defaultTasks
-        this.debug = runTasks.contains("grabverDebug")
+        debug = runTasks.contains("grabverDebug")
         printDebug("runTasks=" + runTasks)
         printDebug("saveOn=" + versioning.saveOn)
 
@@ -147,12 +148,13 @@ class GrabVer implements Plugin<Project> {
         loadProperties(false)
 
         // Patch and Code increment depending on release task
-        boolean isAndroid = project.plugins.findPlugin("com.android")
+        boolean isAndroid = project.plugins.hasPlugin("com.android.application") ||
+                            project.plugins.hasPlugin("com.android.library")
         if (isRelease(runTasks, project.name, versioning)) {
             versioning.isRelease = true
-            println("INFO - ${styler(BLUE, "release")} build detected" + (isAndroid ? " => 'Code' version will auto increment" : ""))
+            printInfo("${styler(BLUE, "release")} build detected" + (isAndroid ? " => 'Code' version will auto increment" : ""))
         } else {
-            println("INFO - Running ${styler(BLUE, "debug")} build" + (isAndroid ? " => 'Code' version remains unchanged" : ""))
+            printInfo("Running ${styler(BLUE, "debug")} build" + (isAndroid ? " => 'Code' version remains unchanged" : ""))
         }
         return true
     }
@@ -174,7 +176,7 @@ class GrabVer implements Plugin<Project> {
         File file = new File(filename)
         if (!file.canRead()) {
             this.firstRun = true
-            println(styler(YELLOW, "WARN - Creating new properties file ${filename}"))
+            printWarn("Creating new properties file ${filename}")
             file.createNewFile()
         } else if (!silent) {
             printDebug("Versioning file ${filename}")
@@ -186,6 +188,10 @@ class GrabVer implements Plugin<Project> {
      * Saves new values to properties file.
      */
     private void saveFile() {
+        if (versionProps == null) {
+            printWarn("Cannot save version: properties not loaded. Did you access versioning.name or similar?")
+            return
+        }
         versionProps.setProperty(VersionType.MAJOR.toString(), String.valueOf(versioning.major))
         versionProps.setProperty(VersionType.MINOR.toString(), String.valueOf(versioning.minor))
         versionProps.setProperty(VersionType.PATCH.toString(), String.valueOf(versioning.patch))
@@ -202,7 +208,7 @@ class GrabVer implements Plugin<Project> {
         for (String task in runTasks) {
             String androidProject = getAndroidProject(task, project)
             task = getAndroidTask(task)
-            if (project == androidProject && (task == saveOn || SAVE_TASKS.contains(task))) {
+            if (project == androidProject && (task == saveOn || matchesTask(task, SAVE_TASKS))) {
                 return true
             }
         }
@@ -214,8 +220,28 @@ class GrabVer implements Plugin<Project> {
             String androidProject = getAndroidProject(task, project)
             task = getAndroidTask(task)
             if (project == androidProject && (
-                    task.equalsIgnoreCase(versioning.incrementOn) || RELEASE_TASKS.contains(task))) {
+                    task.equalsIgnoreCase(versioning.incrementOn) || matchesTask(task, RELEASE_TASKS))) {
                 return true
+            }
+        }
+        return false
+    }
+
+    private static boolean matchesTask(String task, String[] patterns) {
+        String taskLower = task.toLowerCase()
+        for (String pattern in patterns) {
+            String patternLower = pattern.toLowerCase()
+            // Exact match
+            if (taskLower == patternLower) {
+                return true
+            }
+            // For tasks with prefixes: match prefix* tasks ending with debug/release
+            if (patternLower == "debug" || patternLower == "release") {
+                for (String prefix in TASK_PREFIXES) {
+                    if (taskLower.startsWith(prefix) && taskLower.endsWith(patternLower)) {
+                        return true
+                    }
+                }
             }
         }
         return false
@@ -232,9 +258,21 @@ class GrabVer implements Plugin<Project> {
         return (lastIndex > 0) ? task.substring(lastIndex + 1) : task
     }
 
-    protected printDebug(String message) {
+    protected static void printDebug(String message) {
         if (debug) {
             println("DEBUG - ${message}")
         }
+    }
+
+    protected static void printInfo(String message) {
+        println("INFO - ${message}")
+    }
+
+    protected static void printWarn(String message) {
+        println(styler(YELLOW,"WARN - ${message}"))
+    }
+
+    protected static void printError(String message) {
+        println(styler(RED,"ERROR - ${message}"))
     }
 }

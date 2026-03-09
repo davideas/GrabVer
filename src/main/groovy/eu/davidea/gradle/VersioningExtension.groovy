@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2024 Davidea Solutions Sprl
+ * Copyright 2017-2026 Davidea Solutions Srl
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@ package eu.davidea.gradle
 
 import nu.studer.java.util.OrderedProperties
 
-import static eu.davidea.gradle.ConsoleColors.*
+import static eu.davidea.gradle.ConsoleColors.bold
+import static eu.davidea.gradle.GrabVer.*
 
 /**
  * @author Davide Steduto
@@ -59,40 +60,40 @@ class VersioningExtension {
                     (", incrementBuild: ${bold(incrementBuild.toString())}") +
                     (incrementOn ? ", incrementOn: ${bold(incrementOn)}" : "") +
                     (saveOn ? ", saveOn: ${bold(saveOn)}" : "")
-            println("INFO - Evaluating user values: {${version}${tasks}}")
+            printInfo("Evaluating user values: {${version}${tasks}}")
             // Auto reset Patch in case they differ or preRelease is set
             if (major != propMajor || minor != propMinor || isPreRelease()) {
                 if (!grabver.firstRun && propMajor != 0 && major > propMajor && minor != 0) {
-                    println(styler(RED, "ERROR - Expected minor to be 0 if major has increased"))
+                    printError("Expected minor to be 0 if major has increased")
                     throw new IllegalArgumentException("Inconsistent minor value: major has changed but minor is not 0")
                 }
                 if (!grabver.firstRun && propMinor != 0 && minor > propMinor && patch > 0) {
-                    println(styler(RED, "ERROR - Expected patch to be 0 if minor has increased"))
+                    printError("Expected patch to be 0 if minor has increased")
                     throw new IllegalArgumentException("Inconsistent patch value: minor has changed but patch is not 0")
                 }
                 if (patch < 0) {
-                    grabver.printDebug("Auto resetting patch version")
+                    printDebug("Auto resetting patch version")
                     patch = 0
                 }
             } else if (isRelease && patch < 0) {
-                grabver.printDebug("Auto incrementing patch version")
+                printDebug("Auto incrementing patch version")
                 // Auto-increment Patch if Major or Minor do not differ from user
                 patch = propPatch + 1
             }
             // Auto-increment build number only if enabled
             if (incrementBuild) {
-                grabver.printDebug("Auto incrementing build number")
+                printDebug("Auto incrementing build number")
                 build++
             } else {
-                grabver.printDebug("Build number increment disabled")
+                printDebug("Build number increment disabled")
             }
             // Auto-increment Code only in case of release
             if (isRelease) {
-                grabver.printDebug("Auto incrementing code version")
+                printDebug("Auto incrementing code version")
                 code += 1
             }
             propPreRelease = preRelease
-            grabver.printDebug("Evaluation complete: ${bold(toString())}")
+            printDebug("Evaluation complete: ${bold(toString())}")
         }
     }
 
@@ -105,7 +106,7 @@ class VersioningExtension {
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
         code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "1"))
         if (!silent) {
-            println("INFO - Current version: " + bold(toStringCurrent()))
+            printInfo("Current version: " + bold(toStringCurrent()))
         }
     }
 

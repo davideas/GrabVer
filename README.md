@@ -38,7 +38,7 @@ Configure plugin management in _settings.gradle_ file:
 ``` gradle
 pluginManagement {
     repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
+        gradlePluginPortal()
     }
 }
 ```
