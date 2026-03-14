@@ -8,7 +8,7 @@ versioning {
     minor 2
     incrementBuild true
 }
-defaultTasks('grabverDebug')
+defaultTasks('grabverVerbose')
 
 
 // Simulate Android product flavor tasks

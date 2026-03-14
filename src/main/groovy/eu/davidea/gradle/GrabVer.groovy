@@ -66,11 +66,15 @@ class GrabVer implements Plugin<Project> {
     protected static boolean debug = false
 
     void apply(Project project) {
-        project.task('grabverRelease') {
+        project.tasks.register('grabverRelease') {
             // Dummy task to force release versioning calculation (also used in unit test)
+            group = 'versioning'
+            description = 'Triggers release versioning (increments patch and code)'
         }
-        project.task('grabverDebug') {
+        project.tasks.register('grabverVerbose') {
             // Dummy task to log/display debug steps
+            group = 'versioning'
+            description = 'Enables verbose logging for versioning'
         }
 
         // Create new empty versioning instance
@@ -124,7 +128,7 @@ class GrabVer implements Plugin<Project> {
      */
     protected boolean readUserConfiguration() {
         List<String> runTasks = project.gradle.startParameter.taskNames + project.defaultTasks
-        debug = runTasks.contains("grabverDebug")
+        debug = runTasks.contains("grabverVerbose")
         printDebug("runTasks=" + runTasks)
         printDebug("saveOn=" + versioning.saveOn)
 

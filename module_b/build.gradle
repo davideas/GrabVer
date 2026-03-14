@@ -8,7 +8,7 @@ versioning {
     minor 2
     incrementBuild false
 }
-defaultTasks('grabverDebug')
+defaultTasks('grabverVerbose')
 
 println("MODULE_B - VersionCode: ${versioning.code}")
 println("MODULE_B - VersionName: ${versioning.name}")

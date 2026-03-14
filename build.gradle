@@ -45,6 +45,11 @@ ext {
 group groupId
 version libraryVersion
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 javadoc {
     // Suppresses the warnings
     options.addBooleanOption('Xdoclint:none', true)
@@ -65,11 +70,6 @@ gradlePlugin {
             implementationClass = project.groupId + '.gradle.GrabVer'
         }
     }
-}
-
-// To publish to Maven: gradle publish
-if (gradle.getStartParameter().getTaskNames().contains("publish")) {
-    //apply from: 'maven-publish.gradle'
 }
 
 // To run unit tests add in command line: -P test
