@@ -32,6 +32,12 @@ class VersioningExtension {
     int patch = -1
     String preRelease
     String incrementOn
+    /**
+     * @deprecated It will be removed in next major release. Since {@code incrementOn} now also
+     * triggers save, and {@code incrementBuild} controls whether build number increments on debug
+     * builds, there is no remaining scenario where a custom save task is needed.
+     */
+    @Deprecated
     String saveOn
     boolean incrementBuild = true
     // Private values from properties
@@ -104,7 +110,7 @@ class VersioningExtension {
         propPatch = Integer.valueOf(versionProps.getProperty(VersionType.PATCH.toString(), "0"))
         propPreRelease = versionProps.getProperty(VersionType.PRE_RELEASE.toString(), "")
         build = Integer.valueOf(versionProps.getProperty(VersionType.BUILD.toString(), "0"))
-        code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "1"))
+        code = Integer.valueOf(versionProps.getProperty(VersionType.CODE.toString(), "0"))
         if (!silent) {
             printInfo("Current version: " + bold(toStringCurrent()))
         }
@@ -144,6 +150,11 @@ class VersioningExtension {
 
     int getCode() {
         evaluateVersion()
+        // Android requires versionCode >= 1
+        return Math.max(1, code)
+    }
+
+    protected int getRawCode() {
         return code
     }
 

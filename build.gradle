@@ -46,8 +46,8 @@ group groupId
 version libraryVersion
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 javadoc {
@@ -75,4 +75,5 @@ gradlePlugin {
 // To run unit tests add in command line: -P test
 tasks.test {
     it.jvmArgs = ["--add-opens=java.base/java.lang=ALL-UNNAMED"]
+    doLast { delete "userHome" }
 }
